@@ -18,11 +18,11 @@ export const selectors = {
   // YouTube DOM selectors
   youtube: {
     secondaryColumn: '#secondary',
-    videoTitle: 'h1.ytd-watch-metadata',
-    channelName: '#top-row .ytd-channel-name a, #channel-name a',
-    transcriptButton: 'button[aria-label*="transcript"], button[aria-label*="Transcript"]',
-    transcriptSegments: 'ytd-transcript-segment-renderer',
-    expandButton: 'tp-yt-paper-button#expand',
+    videoTitle: 'h1.ytd-watch-metadata, h1.title, #container h1',
+    channelName: '#top-row .ytd-channel-name a, #channel-name a, #owner-name a',
+    transcriptButton: 'button[aria-label*="transcript" i], button[aria-label*="Transcript" i]',
+    transcriptSegments: 'ytd-transcript-segment-renderer, .segment',
+    expandButton: 'tp-yt-paper-button#expand, .more-button',
     moreButton: '#top-level-buttons-computed ytd-menu-renderer'
   },
   

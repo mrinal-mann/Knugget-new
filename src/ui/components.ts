@@ -1,11 +1,11 @@
 // ui/components.ts
-import { createElement } from '../utils/dom';
-import { Summary, TranscriptSegment, User } from '../types';
-import { selectors, config } from '../config';
+import { createElement } from "../utils/dom";
+import { Summary, TranscriptSegment, User } from "../types";
+import { selectors, config } from "../config";
 
 export class KnuggetPanel {
   private container: HTMLElement;
-  private currentTab: 'transcript' | 'summary' = 'transcript';
+  private currentTab: "transcript" | "summary" = "transcript";
   private onLoginClick?: () => void;
   private onGenerateClick?: () => void;
   private onSaveClick?: () => void;
@@ -16,9 +16,9 @@ export class KnuggetPanel {
   }
 
   private createPanelStructure(): HTMLElement {
-    return createElement('div', {
-      id: 'knugget-panel',
-      className: 'knugget-panel',
+    return createElement("div", {
+      id: "knugget-panel",
+      className: "knugget-panel",
       innerHTML: `
         <div class="knugget-header">
           <div class="knugget-logo">
@@ -80,55 +80,59 @@ export class KnuggetPanel {
           </button>
           <span class="knugget-version">v1.0.0</span>
         </div>
-      `
+      `,
     });
   }
 
   private attachEventListeners(): void {
     // Tab switching
-    const tabButtons = this.container.querySelectorAll('.knugget-tab');
-    tabButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
+    const tabButtons = this.container.querySelectorAll(".knugget-tab");
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", (e) => {
         const target = e.currentTarget as HTMLElement;
-        const tabName = target.dataset.tab as 'transcript' | 'summary';
+        const tabName = target.dataset.tab as "transcript" | "summary";
         this.switchTab(tabName);
       });
     });
 
     // Auth buttons
-    const loginBtn = this.container.querySelector('#knugget-login-btn');
-    const signupBtn = this.container.querySelector('#knugget-signup-btn');
+    const loginBtn = this.container.querySelector("#knugget-login-btn");
+    const signupBtn = this.container.querySelector("#knugget-signup-btn");
 
-    loginBtn?.addEventListener('click', () => this.onLoginClick?.());
-    signupBtn?.addEventListener('click', () => this.onLoginClick?.()); // For now, both go to login
+    loginBtn?.addEventListener("click", () => this.onLoginClick?.());
+    signupBtn?.addEventListener("click", () => this.onLoginClick?.()); // For now, both go to login
 
     // Settings button
-    const settingsBtn = this.container.querySelector('#knugget-settings-btn');
-    settingsBtn?.addEventListener('click', () => {
-      window.open(`${config.websiteUrl}/settings`, '_blank');
+    const settingsBtn = this.container.querySelector("#knugget-settings-btn");
+    settingsBtn?.addEventListener("click", () => {
+      window.open(`${config.websiteUrl}/settings`, "_blank");
     });
   }
 
-  switchTab(tab: 'transcript' | 'summary'): void {
+  switchTab(tab: "transcript" | "summary"): void {
     this.currentTab = tab;
 
     // Update tab buttons
-    const tabs = this.container.querySelectorAll('.knugget-tab');
-    tabs.forEach(t => t.classList.remove('active'));
-    
+    const tabs = this.container.querySelectorAll(".knugget-tab");
+    tabs.forEach((t) => t.classList.remove("active"));
+
     const activeTab = this.container.querySelector(`[data-tab="${tab}"]`);
-    activeTab?.classList.add('active');
+    activeTab?.classList.add("active");
 
     // Update content
-    const contents = this.container.querySelectorAll('.knugget-tab-content');
-    contents.forEach(c => c.classList.remove('active'));
-    
-    const activeContent = this.container.querySelector(`#knugget-content-${tab}`);
-    activeContent?.classList.add('active');
+    const contents = this.container.querySelectorAll(".knugget-tab-content");
+    contents.forEach((c) => c.classList.remove("active"));
+
+    const activeContent = this.container.querySelector(
+      `#knugget-content-${tab}`
+    );
+    activeContent?.classList.add("active");
   }
 
   showTranscript(segments: TranscriptSegment[]): void {
-    const transcriptContent = this.container.querySelector('#knugget-content-transcript');
+    const transcriptContent = this.container.querySelector(
+      "#knugget-content-transcript"
+    );
     if (!transcriptContent) return;
 
     if (segments.length === 0) {
@@ -143,12 +147,16 @@ export class KnuggetPanel {
       return;
     }
 
-    const segmentsHtml = segments.map(segment => `
+    const segmentsHtml = segments
+      .map(
+        (segment) => `
       <div class="transcript-segment" data-start="${segment.startSeconds || 0}">
         <span class="timestamp">${segment.timestamp}</span>
         <span class="text">${segment.text}</span>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
 
     transcriptContent.innerHTML = `
       <div class="transcript-container">
@@ -157,10 +165,12 @@ export class KnuggetPanel {
     `;
 
     // Add click handlers for timestamp navigation
-    const timestampElements = transcriptContent.querySelectorAll('.transcript-segment');
-    timestampElements.forEach(element => {
-      element.addEventListener('click', () => {
-        const startTime = element.getAttribute('data-start');
+    const timestampElements = transcriptContent.querySelectorAll(
+      ".transcript-segment"
+    );
+    timestampElements.forEach((element) => {
+      element.addEventListener("click", () => {
+        const startTime = element.getAttribute("data-start");
         if (startTime) {
           this.seekVideo(parseInt(startTime));
         }
@@ -169,11 +179,13 @@ export class KnuggetPanel {
   }
 
   showSummaryForAuthenticated(user: User): void {
-    const summaryContent = this.container.querySelector('#knugget-content-summary');
+    const summaryContent = this.container.querySelector(
+      "#knugget-content-summary"
+    );
     if (!summaryContent) return;
 
     // Update credits display
-    const creditsElement = this.container.querySelector('#knugget-credits');
+    const creditsElement = this.container.querySelector("#knugget-credits");
     if (creditsElement) {
       creditsElement.textContent = `${user.credits} credits left`;
     }
@@ -196,12 +208,14 @@ export class KnuggetPanel {
       </div>
     `;
 
-    const generateBtn = summaryContent.querySelector('#knugget-generate-btn');
-    generateBtn?.addEventListener('click', () => this.onGenerateClick?.());
+    const generateBtn = summaryContent.querySelector("#knugget-generate-btn");
+    generateBtn?.addEventListener("click", () => this.onGenerateClick?.());
   }
 
   showSummaryLoading(): void {
-    const summaryContent = this.container.querySelector('#knugget-content-summary');
+    const summaryContent = this.container.querySelector(
+      "#knugget-content-summary"
+    );
     if (!summaryContent) return;
 
     summaryContent.innerHTML = `
@@ -214,15 +228,21 @@ export class KnuggetPanel {
   }
 
   showSummary(summary: Summary): void {
-    const summaryContent = this.container.querySelector('#knugget-content-summary');
+    const summaryContent = this.container.querySelector(
+      "#knugget-content-summary"
+    );
     if (!summaryContent) return;
 
-    const keyPointsHtml = summary.keyPoints.map(point => `
+    const keyPointsHtml = summary.keyPoints
+      .map(
+        (point) => `
       <div class="key-point">
         <div class="bullet">•</div>
         <div class="point-text">${point}</div>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
 
     summaryContent.innerHTML = `
       <div class="summary-container">
@@ -254,12 +274,14 @@ export class KnuggetPanel {
       </div>
     `;
 
-    const saveBtn = summaryContent.querySelector('#knugget-save-btn');
-    saveBtn?.addEventListener('click', () => this.onSaveClick?.());
+    const saveBtn = summaryContent.querySelector("#knugget-save-btn");
+    saveBtn?.addEventListener("click", () => this.onSaveClick?.());
   }
 
   showError(message: string, onRetry?: () => void): void {
-    const activeContent = this.container.querySelector('.knugget-tab-content.active');
+    const activeContent = this.container.querySelector(
+      ".knugget-tab-content.active"
+    );
     if (!activeContent) return;
 
     activeContent.innerHTML = `
@@ -268,18 +290,22 @@ export class KnuggetPanel {
           <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
         </svg>
         <p>${message}</p>
-        ${onRetry ? '<button class="btn btn-primary" onclick="this.retry()">Try Again</button>' : ''}
+        ${
+          onRetry
+            ? '<button class="btn btn-primary" onclick="this.retry()">Try Again</button>'
+            : ""
+        }
       </div>
     `;
 
     if (onRetry) {
-      const retryBtn = activeContent.querySelector('button');
-      retryBtn?.addEventListener('click', onRetry);
+      const retryBtn = activeContent.querySelector("button");
+      retryBtn?.addEventListener("click", onRetry);
     }
   }
 
   private seekVideo(seconds: number): void {
-    const video = document.querySelector('video') as HTMLVideoElement;
+    const video = document.querySelector("video") as HTMLVideoElement;
     if (video) {
       video.currentTime = seconds;
     }
@@ -300,15 +326,28 @@ export class KnuggetPanel {
 
   // Panel management
   show(): void {
-    this.container.classList.add('visible');
+    // Ensure the container is visible
+    this.container.style.display = "block";
+    // Add visible class for animation
+    requestAnimationFrame(() => {
+      this.container.classList.add("visible");
+    });
   }
 
   hide(): void {
-    this.container.classList.remove('visible');
+    this.container.classList.remove("visible");
+    // Hide after animation
+    setTimeout(() => {
+      this.container.style.display = "none";
+    }, 300);
   }
 
   toggle(): void {
-    this.container.classList.toggle('visible');
+    if (this.container.classList.contains("visible")) {
+      this.hide();
+    } else {
+      this.show();
+    }
   }
 
   getElement(): HTMLElement {

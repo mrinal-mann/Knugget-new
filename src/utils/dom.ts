@@ -1,44 +1,69 @@
 // utils/dom.ts
 
+// Wait for specified milliseconds
 export function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Wait for an element to appear in the DOM with timeout
 export function waitForElement(
   selector: string,
   timeout: number = 10000
 ): Promise<Element | null> {
   return new Promise((resolve) => {
+    // Check if element already exists
     const element = document.querySelector(selector);
     if (element) {
       resolve(element);
       return;
     }
 
+    // Set up mutation observer
     const observer = new MutationObserver(() => {
       const element = document.querySelector(selector);
       if (element) {
         observer.disconnect();
+        clearTimeout(timeoutId);
         resolve(element);
       }
     });
 
+    // Set up timeout
+    const timeoutId = setTimeout(() => {
+      observer.disconnect();
+      resolve(null);
+    }, timeout);
+
+    // Start observing
     observer.observe(document.body, {
       childList: true,
       subtree: true,
     });
-
-    setTimeout(() => {
-      observer.disconnect();
-      resolve(null);
-    }, timeout);
   });
 }
 
+// Programmatically click an element
 export async function clickElement(element: Element): Promise<void> {
   if (element instanceof HTMLElement) {
+    // Try native click first
     element.click();
   } else {
+    // Dispatch mouse events for non-HTMLElements
+    element.dispatchEvent(
+      new MouseEvent("mousedown", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      })
+    );
+    await wait(50);
+    element.dispatchEvent(
+      new MouseEvent("mouseup", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      })
+    );
     element.dispatchEvent(
       new MouseEvent("click", {
         bubbles: true,
@@ -178,26 +203,52 @@ export function throttle<T extends (...args: any[]) => any>(
   };
 }
 
+// Get current YouTube video ID from URL
 export function getVideoId(): string | null {
   const url = new URL(window.location.href);
   return url.searchParams.get("v");
 }
 
+// Extract video metadata from YouTube page
 export function getVideoMetadata() {
   const videoId = getVideoId();
   if (!videoId) return null;
 
-  const titleElement = document.querySelector("h1.ytd-watch-metadata");
-  const channelElement = document.querySelector(
-    "#top-row .ytd-channel-name a, #channel-name a"
+  // Try multiple selectors for title
+  const titleElement = document.querySelector(
+    "h1.ytd-watch-metadata, h1.title, #container h1"
   );
+  // Try multiple selectors for channel
+  const channelElement = document.querySelector(
+    "#top-row .ytd-channel-name a, #channel-name a, #owner-name a, ytd-channel-name a"
+  );
+
+  // Get video duration from player
+  const videoPlayer = document.querySelector("video");
+  const duration = videoPlayer ? formatDuration(videoPlayer.duration) : "";
 
   return {
     videoId,
     title: titleElement?.textContent?.trim() || "Unknown Title",
     channelName: channelElement?.textContent?.trim() || "Unknown Channel",
     url: window.location.href,
-    duration: "", // Could be extracted from video element if needed
+    duration,
     thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
   };
+}
+
+// Format duration from seconds to readable format
+function formatDuration(seconds: number): string {
+  if (!seconds || isNaN(seconds)) return "";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  }
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }

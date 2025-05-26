@@ -32,42 +32,115 @@ class KnuggetExtension {
     error: null,
   };
   private currentVideoId: string | null = null;
+  private observer: MutationObserver | null = null;
 
   constructor() {
     this.initialize();
   }
 
+  // Initialize the extension and check if we're on a video page
   private async initialize(): Promise<void> {
     console.log("🎯 Knugget Extension initializing...");
 
     try {
-      // Wait for YouTube to load
-      await waitForElement("ytd-watch-flexy", 10000);
-
       // Check if we're on a video page
       if (!this.isVideoPage()) {
-        console.log("Not on a video page, skipping initialization");
+        console.log("Not on a video page, waiting for navigation...");
+        this.setupNavigationListener();
         return;
       }
 
       // Initialize auth state
       await this.initializeAuth();
 
-      // Setup the panel
-      await this.setupPanel();
+      // Setup message listeners early
+      this.setupMessageListeners();
+
+      // Observe DOM for YouTube's secondary column
+      this.observeForSecondaryColumn();
 
       // Setup URL change detection for SPA navigation
       this.setupNavigationListener();
 
-      // Setup message listeners
-      this.setupMessageListeners();
-
-      // Load initial content
-      await this.handleVideoChange();
-
       console.log("✅ Knugget Extension initialized successfully");
     } catch (error) {
       console.error("❌ Failed to initialize Knugget Extension:", error);
+    }
+  }
+
+  // Watch for YouTube's secondary column to appear and inject panel
+  private observeForSecondaryColumn(): void {
+    console.log("🔍 Observing DOM for secondary column...");
+
+    // Check if secondary column already exists
+    const secondaryColumn = document.querySelector(selectors.youtube.secondaryColumn);
+    if (secondaryColumn) {
+      this.injectPanel(secondaryColumn as HTMLElement);
+      return;
+    }
+
+    // Create observer to watch for secondary column
+    this.observer = new MutationObserver((mutations) => {
+      const secondaryColumn = document.querySelector(selectors.youtube.secondaryColumn);
+      if (secondaryColumn && !this.panel) {
+        console.log("✅ Secondary column found!");
+        this.injectPanel(secondaryColumn as HTMLElement);
+        this.observer?.disconnect();
+      }
+    });
+
+    // Start observing
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Disconnect observer after 30 seconds to prevent memory leaks
+    setTimeout(() => {
+      if (this.observer) {
+        this.observer.disconnect();
+        console.log("⏱️ Observer timeout reached");
+      }
+    }, 30000);
+  }
+
+  // Inject the Knugget panel into YouTube's secondary column
+  private async injectPanel(secondaryColumn: HTMLElement): Promise<void> {
+    console.log("💉 Injecting Knugget panel...");
+
+    try {
+      // Remove existing panel if present
+      if (this.panel) {
+        this.panel.destroy();
+        this.panel = null;
+      }
+
+      // Create new panel
+      this.panel = new KnuggetPanel();
+      
+      // Insert panel at the beginning of secondary column
+      secondaryColumn.insertBefore(
+        this.panel.getElement(),
+        secondaryColumn.firstChild
+      );
+
+      // Setup event handlers
+      this.panel.setOnLoginClick(() => this.handleLogin());
+      this.panel.setOnGenerateClick(() => this.handleGenerateSummary());
+      this.panel.setOnSaveClick(() => this.handleSaveSummary());
+
+      // Show panel with animation
+      requestAnimationFrame(() => {
+        if (this.panel) {
+          this.panel.show();
+          // Load initial content after panel is visible
+          setTimeout(() => this.handleVideoChange(), 100);
+        }
+      });
+
+      console.log("✅ Panel injected successfully");
+    } catch (error) {
+      console.error("❌ Failed to inject panel:", error);
     }
   }
 
@@ -99,40 +172,6 @@ class KnuggetExtension {
     }
   }
 
-  private async setupPanel(): Promise<void> {
-    // Remove existing panel if present
-    if (this.panel) {
-      this.panel.destroy();
-    }
-
-    // Wait for secondary column to be available
-    const secondaryColumn = await waitForElement(
-      selectors.youtube.secondaryColumn,
-      5000
-    );
-    if (!secondaryColumn) {
-      throw new Error("Could not find YouTube secondary column");
-    }
-
-    // Create and inject panel
-    this.panel = new KnuggetPanel();
-    secondaryColumn.insertBefore(
-      this.panel.getElement(),
-      secondaryColumn.firstChild
-    );
-
-    // Setup event handlers
-    this.panel.setOnLoginClick(() => this.handleLogin());
-    this.panel.setOnGenerateClick(() => this.handleGenerateSummary());
-    this.panel.setOnSaveClick(() => this.handleSaveSummary());
-
-    // Show panel with animation
-    setTimeout(() => {
-      this.panel?.show();
-      this.panel?.getElement().classList.add("animate-in");
-    }, 500);
-  }
-
   private setupNavigationListener(): void {
     // Handle YouTube's SPA navigation
     let lastUrl = window.location.href;
@@ -143,8 +182,10 @@ class KnuggetExtension {
         console.log("🔄 Navigation detected:", lastUrl);
 
         if (this.isVideoPage()) {
-          this.handleVideoChange();
+          // If we navigated to a video page, observe for secondary column
+          this.observeForSecondaryColumn();
         } else {
+          // If we navigated away from a video page, cleanup
           this.cleanup();
         }
       }
@@ -427,6 +468,11 @@ class KnuggetExtension {
       this.panel = null;
     }
 
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+
     this.currentVideoId = null;
     this.state.currentVideo = null;
     this.state.transcript = null;
@@ -441,14 +487,4 @@ if (document.readyState === "loading") {
   });
 } else {
   new KnuggetExtension();
-}
-
-// Handle dynamic script loading
-if (
-  document.readyState === "complete" ||
-  document.readyState === "interactive"
-) {
-  setTimeout(() => {
-    new KnuggetExtension();
-  }, 1000);
 }

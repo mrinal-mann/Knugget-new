@@ -1,554 +1,559 @@
 /* styles.css - Knugget Extension Styles */
 
 .knugget-panel {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    width: 380px;
-    max-height: calc(100vh - 120px);
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    z-index: 10000;
-    transform: translateX(420px);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(20px);
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+
+.knugget-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Header */
+.knugget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+}
+
+.knugget-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.knugget-logo svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.knugget-credits {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Tabs */
+.knugget-tabs {
+  display: flex;
+  background: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+.knugget-tab {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.knugget-tab:hover {
+  background: rgba(255, 107, 53, 0.05);
+  color: #ff6b35;
+}
+
+.knugget-tab.active {
+  color: #ff6b35;
+  background: white;
+  border-bottom-color: #ff6b35;
+}
+
+.knugget-tab svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Content */
+.knugget-content {
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.knugget-tab-content {
+  display: none;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.knugget-tab-content.active {
+  display: block;
+}
+
+/* Custom scrollbar */
+.knugget-tab-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.knugget-tab-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.knugget-tab-content::-webkit-scrollbar-thumb {
+  background: #ff6b35;
+  border-radius: 2px;
+}
+
+.knugget-tab-content::-webkit-scrollbar-thumb:hover {
+  background: #e55a2b;
+}
+
+/* Transcript */
+.transcript-container {
+  padding: 0;
+}
+
+.transcript-segment {
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.transcript-segment:hover {
+  background-color: #f8f9fa;
+}
+
+.transcript-segment:last-child {
+  border-bottom: none;
+}
+
+.transcript-segment .timestamp {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ff6b35;
+  background: rgba(255, 107, 53, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  line-height: 1.4;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.transcript-segment .text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+/* Summary */
+.summary-container {
+  padding: 20px;
+}
+
+.summary-section {
+  margin-bottom: 24px;
+}
+
+.summary-section:last-child {
+  margin-bottom: 0;
+}
+
+.summary-section h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.key-points {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.key-point {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.key-point .bullet {
+  color: #ff6b35;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.key-point .point-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.full-summary {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.full-summary p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0;
+}
+
+.summary-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Auth Prompt */
+.knugget-auth-prompt {
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.auth-icon {
+  margin-bottom: 16px;
+}
+
+.knugget-auth-prompt h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.knugget-auth-prompt p {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Summary Prompt */
+.knugget-summary-prompt {
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.summary-icon {
+  margin-bottom: 16px;
+}
+
+.knugget-summary-prompt h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.knugget-summary-prompt p {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  min-height: 36px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  font-size: 12px;
+  padding: 8px 12px;
+}
+
+.btn-outline:hover {
+  background: #f9fafb;
+  color: #374151;
+}
+
+.btn-icon {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Loading States */
+.knugget-loading {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #ff6b35;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .knugget-panel.visible {
-    transform: translateX(0);
+  100% {
+    transform: rotate(360deg);
   }
-  
-  /* Header */
-  .knugget-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid #f0f0f0;
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-    color: white;
+}
+
+.knugget-loading p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 0 4px 0;
+}
+
+.knugget-loading small {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Error States */
+.knugget-error {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.knugget-error svg {
+  margin-bottom: 16px;
+}
+
+.knugget-error p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+/* Empty States */
+.knugget-empty {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.knugget-empty svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.knugget-empty p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Footer */
+.knugget-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+}
+
+.knugget-version {
+  font-size: 11px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-height: 700px) {
+  .knugget-panel {
+    top: 60px;
+    max-height: calc(100vh - 80px);
   }
-  
-  .knugget-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 16px;
-  }
-  
-  .knugget-logo svg {
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-  }
-  
-  .knugget-credits {
-    font-size: 12px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-weight: 500;
-  }
-  
-  /* Tabs */
-  .knugget-tabs {
-    display: flex;
-    background: #f8f9fa;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .knugget-tab {
-    flex: 1;
-    padding: 12px 16px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #6b7280;
-    transition: all 0.2s ease;
-    border-bottom: 2px solid transparent;
-  }
-  
-  .knugget-tab:hover {
-    background: rgba(255, 107, 53, 0.05);
-    color: #ff6b35;
-  }
-  
-  .knugget-tab.active {
-    color: #ff6b35;
-    background: white;
-    border-bottom-color: #ff6b35;
-  }
-  
-  .knugget-tab svg {
-    width: 14px;
-    height: 14px;
-  }
-  
-  /* Content */
+
   .knugget-content {
-    max-height: 400px;
-    overflow: hidden;
+    max-height: 300px;
   }
-  
+
   .knugget-tab-content {
-    display: none;
-    padding: 0;
-    max-height: 400px;
-    overflow-y: auto;
+    max-height: 300px;
   }
-  
-  .knugget-tab-content.active {
-    display: block;
+}
+
+@media (max-width: 1200px) {
+  .knugget-panel {
+    right: 10px;
+    width: 350px;
   }
-  
-  /* Custom scrollbar */
-  .knugget-tab-content::-webkit-scrollbar {
-    width: 4px;
+}
+
+/* Animation for panel entrance */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(420px);
+    opacity: 0;
   }
-  
-  .knugget-tab-content::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
-  
-  .knugget-tab-content::-webkit-scrollbar-thumb {
-    background: #ff6b35;
-    border-radius: 2px;
+}
+
+.knugget-panel.animate-in {
+  animation: slideInFromRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles for accessibility */
+.knugget-tab:focus,
+.btn:focus,
+.btn-icon:focus {
+  outline: 2px solid #ff6b35;
+  outline-offset: 2px;
+}
+
+/* Hover effects for transcript segments */
+.transcript-segment:hover .timestamp {
+  background: rgba(255, 107, 53, 0.2);
+  transform: scale(1.05);
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .knugget-panel {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
   }
-  
-  .knugget-tab-content::-webkit-scrollbar-thumb:hover {
-    background: #e55a2b;
+
+  .knugget-tabs {
+    background: #374151;
   }
-  
-  /* Transcript */
-  .transcript-container {
-    padding: 0;
+
+  .knugget-tab {
+    color: #9ca3af;
   }
-  
-  .transcript-segment {
-    display: flex;
-    gap: 12px;
-    padding: 12px 20px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    border-bottom: 1px solid #f0f0f0;
+
+  .knugget-tab.active {
+    background: #1f2937;
+    color: #ff6b35;
   }
-  
+
   .transcript-segment:hover {
-    background-color: #f8f9fa;
+    background-color: #374151;
   }
-  
-  .transcript-segment:last-child {
-    border-bottom: none;
-  }
-  
-  .transcript-segment .timestamp {
-    flex-shrink: 0;
-    font-size: 11px;
-    font-weight: 600;
-    color: #ff6b35;
-    background: rgba(255, 107, 53, 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-    line-height: 1.4;
-    align-self: flex-start;
-    margin-top: 2px;
-  }
-  
+
   .transcript-segment .text {
-    flex: 1;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #374151;
+    color: #f9fafb;
   }
-  
-  /* Summary */
-  .summary-container {
-    padding: 20px;
-  }
-  
-  .summary-section {
-    margin-bottom: 24px;
-  }
-  
-  .summary-section:last-child {
-    margin-bottom: 0;
-  }
-  
-  .summary-section h4 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0 0 12px 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .key-points {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .key-point {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  
-  .key-point .bullet {
-    color: #ff6b35;
-    font-weight: bold;
-    font-size: 16px;
-    line-height: 1.5;
-    flex-shrink: 0;
-  }
-  
-  .key-point .point-text {
-    font-size: 13px;
-    line-height: 1.5;
-    color: #374151;
-  }
-  
+
   .full-summary {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    background: #374151;
+    border-color: #4b5563;
   }
-  
+
   .full-summary p {
-    font-size: 13px;
-    line-height: 1.6;
-    color: #374151;
-    margin: 0;
+    color: #f9fafb;
   }
-  
-  .summary-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #f0f0f0;
-  }
-  
-  /* Auth Prompt */
-  .knugget-auth-prompt {
-    padding: 32px 20px;
-    text-align: center;
-  }
-  
-  .auth-icon {
-    margin-bottom: 16px;
-  }
-  
-  .knugget-auth-prompt h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0 0 8px 0;
-  }
-  
-  .knugget-auth-prompt p {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0 0 20px 0;
-    line-height: 1.5;
-  }
-  
-  .auth-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  /* Summary Prompt */
-  .knugget-summary-prompt {
-    padding: 32px 20px;
-    text-align: center;
-  }
-  
-  .summary-icon {
-    margin-bottom: 16px;
-  }
-  
-  .knugget-summary-prompt h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0 0 8px 0;
-  }
-  
-  .knugget-summary-prompt p {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0 0 20px 0;
-    line-height: 1.5;
-  }
-  
-  /* Buttons */
-  .btn {
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-decoration: none;
-    min-height: 36px;
-  }
-  
-  .btn-primary {
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-    color: white;
-    box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
-  }
-  
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
-  }
-  
+
   .btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
   }
-  
+
   .btn-secondary:hover {
-    background: #e5e7eb;
-    border-color: #9ca3af;
+    background: #4b5563;
   }
-  
-  .btn-outline {
-    background: transparent;
-    color: #6b7280;
-    border: 1px solid #d1d5db;
-    font-size: 12px;
-    padding: 8px 12px;
-  }
-  
-  .btn-outline:hover {
-    background: #f9fafb;
-    color: #374151;
-  }
-  
-  .btn-icon {
-    padding: 8px;
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.8);
-    transition: all 0.2s ease;
-  }
-  
-  .btn-icon:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-  }
-  
-  /* Loading States */
-  .knugget-loading {
-    padding: 40px 20px;
-    text-align: center;
-  }
-  
-  .spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid #f3f4f6;
-    border-top: 3px solid #ff6b35;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 16px;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .knugget-loading p {
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-    margin: 0 0 4px 0;
-  }
-  
-  .knugget-loading small {
-    font-size: 12px;
-    color: #6b7280;
-  }
-  
-  /* Error States */
-  .knugget-error {
-    padding: 40px 20px;
-    text-align: center;
-  }
-  
-  .knugget-error svg {
-    margin-bottom: 16px;
-  }
-  
-  .knugget-error p {
-    font-size: 14px;
-    color: #6b7280;
-    margin: 0 0 20px 0;
-    line-height: 1.5;
-  }
-  
-  /* Empty States */
-  .knugget-empty {
-    padding: 40px 20px;
-    text-align: center;
-  }
-  
-  .knugget-empty svg {
-    margin-bottom: 16px;
-    opacity: 0.5;
-  }
-  
-  .knugget-empty p {
-    font-size: 14px;
-    color: #6b7280;
-    margin: 0;
-  }
-  
-  /* Footer */
-  .knugget-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-    color: white;
-  }
-  
-  .knugget-version {
-    font-size: 11px;
-    opacity: 0.8;
-    font-weight: 500;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-height: 700px) {
-    .knugget-panel {
-      top: 60px;
-      max-height: calc(100vh - 80px);
-    }
-    
-    .knugget-content {
-      max-height: 300px;
-    }
-    
-    .knugget-tab-content {
-      max-height: 300px;
-    }
-  }
-  
-  @media (max-width: 1200px) {
-    .knugget-panel {
-      right: 10px;
-      width: 350px;
-    }
-  }
-  
-  /* Animation for panel entrance */
-  @keyframes slideInFromRight {
-    from {
-      transform: translateX(420px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-  
-  .knugget-panel.animate-in {
-    animation: slideInFromRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  /* Focus styles for accessibility */
-  .knugget-tab:focus,
-  .btn:focus,
-  .btn-icon:focus {
-    outline: 2px solid #ff6b35;
-    outline-offset: 2px;
-  }
-  
-  /* Hover effects for transcript segments */
-  .transcript-segment:hover .timestamp {
-    background: rgba(255, 107, 53, 0.2);
-    transform: scale(1.05);
-  }
-  
-  /* Smooth transitions */
-  * {
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-  }
-  
-  /* Dark mode support (optional) */
-  @media (prefers-color-scheme: dark) {
-    .knugget-panel {
-      background: #1f2937;
-      border-color: #374151;
-      color: #f9fafb;
-    }
-    
-    .knugget-tabs {
-      background: #374151;
-    }
-    
-    .knugget-tab {
-      color: #9ca3af;
-    }
-    
-    .knugget-tab.active {
-      background: #1f2937;
-      color: #ff6b35;
-    }
-    
-    .transcript-segment:hover {
-      background-color: #374151;
-    }
-    
-    .transcript-segment .text {
-      color: #f9fafb;
-    }
-    
-    .full-summary {
-      background: #374151;
-      border-color: #4b5563;
-    }
-    
-    .full-summary p {
-      color: #f9fafb;
-    }
-    
-    .btn-secondary {
-      background: #374151;
-      color: #f9fafb;
-      border-color: #4b5563;
-    }
-    
-    .btn-secondary:hover {
-      background: #4b5563;
-    }
-  }
+}
