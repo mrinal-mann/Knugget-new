@@ -1,4 +1,4 @@
-// ui/components.ts
+// ui/components.ts - Fixed panel implementation matching working version
 import { createElement } from "../utils/dom";
 import { Summary, TranscriptSegment, User } from "../types";
 import { selectors, config } from "../config";
@@ -15,6 +15,7 @@ export class KnuggetPanel {
     this.attachEventListeners();
   }
 
+  // Create the main panel structure with proper YouTube integration styling
   private createPanelStructure(): HTMLElement {
     return createElement("div", {
       id: "knugget-panel",
@@ -23,7 +24,7 @@ export class KnuggetPanel {
         <div class="knugget-header">
           <div class="knugget-logo">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L22 12L12 22L2 12L12 2Z" fill="#FF6B35"/>
+              <path d="M12 2L22 12L12 22L2 12L12 2Z" fill="currentColor"/>
             </svg>
             <span>Knugget</span>
           </div>
@@ -84,8 +85,9 @@ export class KnuggetPanel {
     });
   }
 
+  // Attach event listeners to panel elements
   private attachEventListeners(): void {
-    // Tab switching
+    // Handle tab switching between transcript and summary
     const tabButtons = this.container.querySelectorAll(".knugget-tab");
     tabButtons.forEach((button) => {
       button.addEventListener("click", (e) => {
@@ -95,31 +97,32 @@ export class KnuggetPanel {
       });
     });
 
-    // Auth buttons
+    // Handle authentication button clicks
     const loginBtn = this.container.querySelector("#knugget-login-btn");
     const signupBtn = this.container.querySelector("#knugget-signup-btn");
 
     loginBtn?.addEventListener("click", () => this.onLoginClick?.());
-    signupBtn?.addEventListener("click", () => this.onLoginClick?.()); // For now, both go to login
+    signupBtn?.addEventListener("click", () => this.onLoginClick?.()); // Both go to login for now
 
-    // Settings button
+    // Handle settings button click
     const settingsBtn = this.container.querySelector("#knugget-settings-btn");
     settingsBtn?.addEventListener("click", () => {
       window.open(`${config.websiteUrl}/settings`, "_blank");
     });
   }
 
+  // Switch between transcript and summary tabs
   switchTab(tab: "transcript" | "summary"): void {
     this.currentTab = tab;
 
-    // Update tab buttons
+    // Update active tab styling
     const tabs = this.container.querySelectorAll(".knugget-tab");
     tabs.forEach((t) => t.classList.remove("active"));
 
     const activeTab = this.container.querySelector(`[data-tab="${tab}"]`);
     activeTab?.classList.add("active");
 
-    // Update content
+    // Show corresponding content
     const contents = this.container.querySelectorAll(".knugget-tab-content");
     contents.forEach((c) => c.classList.remove("active"));
 
@@ -129,6 +132,7 @@ export class KnuggetPanel {
     activeContent?.classList.add("active");
   }
 
+  // Display transcript segments with timestamp navigation
   showTranscript(segments: TranscriptSegment[]): void {
     const transcriptContent = this.container.querySelector(
       "#knugget-content-transcript"
@@ -147,6 +151,7 @@ export class KnuggetPanel {
       return;
     }
 
+    // Generate HTML for transcript segments
     const segmentsHtml = segments
       .map(
         (segment) => `
@@ -164,7 +169,7 @@ export class KnuggetPanel {
       </div>
     `;
 
-    // Add click handlers for timestamp navigation
+    // Add click handlers for video seek functionality
     const timestampElements = transcriptContent.querySelectorAll(
       ".transcript-segment"
     );
@@ -178,18 +183,20 @@ export class KnuggetPanel {
     });
   }
 
+  // Show summary interface for authenticated users
   showSummaryForAuthenticated(user: User): void {
     const summaryContent = this.container.querySelector(
       "#knugget-content-summary"
     );
     if (!summaryContent) return;
 
-    // Update credits display
+    // Update credits display in header
     const creditsElement = this.container.querySelector("#knugget-credits");
     if (creditsElement) {
       creditsElement.textContent = `${user.credits} credits left`;
     }
 
+    // Show generate summary prompt
     summaryContent.innerHTML = `
       <div class="knugget-summary-prompt">
         <div class="summary-icon">
@@ -208,10 +215,12 @@ export class KnuggetPanel {
       </div>
     `;
 
+    // Attach generate button event listener
     const generateBtn = summaryContent.querySelector("#knugget-generate-btn");
     generateBtn?.addEventListener("click", () => this.onGenerateClick?.());
   }
 
+  // Show loading state during summary generation
   showSummaryLoading(): void {
     const summaryContent = this.container.querySelector(
       "#knugget-content-summary"
@@ -227,12 +236,14 @@ export class KnuggetPanel {
     `;
   }
 
+  // Display generated summary with key points and save functionality
   showSummary(summary: Summary): void {
     const summaryContent = this.container.querySelector(
       "#knugget-content-summary"
     );
     if (!summaryContent) return;
 
+    // Generate HTML for key points
     const keyPointsHtml = summary.keyPoints
       .map(
         (point) => `
@@ -247,14 +258,24 @@ export class KnuggetPanel {
     summaryContent.innerHTML = `
       <div class="summary-container">
         <div class="summary-section">
-          <h4>Key Points</h4>
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9,5V9H21V5M9,19H21V15H9M9,14H21V10H9M4,9H8L6,7M4,19H8L6,17M4,14H8L6,12"/>
+            </svg>
+            Key Points
+          </h4>
           <div class="key-points">
             ${keyPointsHtml}
           </div>
         </div>
         
         <div class="summary-section">
-          <h4>Full Summary</h4>
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            Full Summary
+          </h4>
           <div class="full-summary">
             <p>${summary.fullSummary}</p>
           </div>
@@ -274,10 +295,12 @@ export class KnuggetPanel {
       </div>
     `;
 
+    // Attach save button event listener
     const saveBtn = summaryContent.querySelector("#knugget-save-btn");
     saveBtn?.addEventListener("click", () => this.onSaveClick?.());
   }
 
+  // Show error state with optional retry functionality
   showError(message: string, onRetry?: () => void): void {
     const activeContent = this.container.querySelector(
       ".knugget-tab-content.active"
@@ -292,18 +315,20 @@ export class KnuggetPanel {
         <p>${message}</p>
         ${
           onRetry
-            ? '<button class="btn btn-primary" onclick="this.retry()">Try Again</button>'
+            ? '<button class="btn btn-primary" id="retry-btn">Try Again</button>'
             : ""
         }
       </div>
     `;
 
+    // Attach retry button event listener if provided
     if (onRetry) {
-      const retryBtn = activeContent.querySelector("button");
+      const retryBtn = activeContent.querySelector("#retry-btn");
       retryBtn?.addEventListener("click", onRetry);
     }
   }
 
+  // Seek YouTube video to specific timestamp
   private seekVideo(seconds: number): void {
     const video = document.querySelector("video") as HTMLVideoElement;
     if (video) {
@@ -311,7 +336,7 @@ export class KnuggetPanel {
     }
   }
 
-  // Event handlers
+  // Set event handler callbacks
   setOnLoginClick(handler: () => void): void {
     this.onLoginClick = handler;
   }
@@ -324,11 +349,10 @@ export class KnuggetPanel {
     this.onSaveClick = handler;
   }
 
-  // Panel management
+  // Panel visibility management with animations
   show(): void {
-    // Ensure the container is visible
     this.container.style.display = "block";
-    // Add visible class for animation
+    // Trigger animation after DOM update
     requestAnimationFrame(() => {
       this.container.classList.add("visible");
     });
@@ -336,7 +360,7 @@ export class KnuggetPanel {
 
   hide(): void {
     this.container.classList.remove("visible");
-    // Hide after animation
+    // Hide after animation completes
     setTimeout(() => {
       this.container.style.display = "none";
     }, 300);
@@ -350,10 +374,12 @@ export class KnuggetPanel {
     }
   }
 
+  // Get the panel DOM element
   getElement(): HTMLElement {
     return this.container;
   }
 
+  // Clean up and remove panel from DOM
   destroy(): void {
     this.container.remove();
   }

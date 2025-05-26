@@ -1,4 +1,4 @@
-// utils/dom.ts
+// utils/dom.ts - Enhanced YouTube integration
 
 // Wait for specified milliseconds
 export function wait(ms: number): Promise<void> {
@@ -18,7 +18,7 @@ export function waitForElement(
       return;
     }
 
-    // Set up mutation observer
+    // Set up mutation observer to watch for element
     const observer = new MutationObserver(() => {
       const element = document.querySelector(selector);
       if (element) {
@@ -28,13 +28,13 @@ export function waitForElement(
       }
     });
 
-    // Set up timeout
+    // Set up timeout to prevent infinite waiting
     const timeoutId = setTimeout(() => {
       observer.disconnect();
       resolve(null);
     }, timeout);
 
-    // Start observing
+    // Start observing document changes
     observer.observe(document.body, {
       childList: true,
       subtree: true,
@@ -42,13 +42,13 @@ export function waitForElement(
   });
 }
 
-// Programmatically click an element
+// Programmatically click an element with proper event simulation
 export async function clickElement(element: Element): Promise<void> {
   if (element instanceof HTMLElement) {
-    // Try native click first
+    // Try native click first for HTMLElements
     element.click();
   } else {
-    // Dispatch mouse events for non-HTMLElements
+    // Dispatch proper mouse events for other elements
     element.dispatchEvent(
       new MouseEvent("mousedown", {
         bubbles: true,
@@ -74,6 +74,7 @@ export async function clickElement(element: Element): Promise<void> {
   }
 }
 
+// Create DOM element with comprehensive options
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   options: {
@@ -116,6 +117,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   return element;
 }
 
+// Find ancestor element that matches selector
 export function findAncestor(
   element: Element,
   selector: string
@@ -130,6 +132,7 @@ export function findAncestor(
   return null;
 }
 
+// Insert element after target element
 export function insertAfter(newElement: Element, targetElement: Element): void {
   const parent = targetElement.parentNode;
   if (parent) {
@@ -141,6 +144,7 @@ export function insertAfter(newElement: Element, targetElement: Element): void {
   }
 }
 
+// Insert element before target element
 export function insertBefore(
   newElement: Element,
   targetElement: Element
@@ -151,10 +155,12 @@ export function insertBefore(
   }
 }
 
+// Remove element from DOM
 export function removeElement(element: Element): void {
   element.parentNode?.removeChild(element);
 }
 
+// Check if element is visible in viewport
 export function isElementVisible(element: Element): boolean {
   const rect = element.getBoundingClientRect();
   return (
@@ -168,6 +174,7 @@ export function isElementVisible(element: Element): boolean {
   );
 }
 
+// Scroll element into view if not visible
 export function scrollIntoViewIfNeeded(element: Element): void {
   if (!isElementVisible(element)) {
     element.scrollIntoView({
@@ -178,6 +185,7 @@ export function scrollIntoViewIfNeeded(element: Element): void {
   }
 }
 
+// Debounce function to limit rapid calls
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -189,6 +197,7 @@ export function debounce<T extends (...args: any[]) => any>(
   };
 }
 
+// Throttle function to limit call frequency
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number
@@ -203,29 +212,60 @@ export function throttle<T extends (...args: any[]) => any>(
   };
 }
 
-// Get current YouTube video ID from URL
+// Extract YouTube video ID from current URL
 export function getVideoId(): string | null {
   const url = new URL(window.location.href);
   return url.searchParams.get("v");
 }
 
-// Extract video metadata from YouTube page
+// Extract comprehensive video metadata from YouTube page
 export function getVideoMetadata() {
   const videoId = getVideoId();
   if (!videoId) return null;
 
-  // Try multiple selectors for title
-  const titleElement = document.querySelector(
-    "h1.ytd-watch-metadata, h1.title, #container h1"
-  );
-  // Try multiple selectors for channel
-  const channelElement = document.querySelector(
-    "#top-row .ytd-channel-name a, #channel-name a, #owner-name a, ytd-channel-name a"
-  );
+  // Try multiple selectors for video title (YouTube changes layout frequently)
+  const titleSelectors = [
+    'h1.ytd-watch-metadata #title',
+    'h1.title',
+    '#container h1',
+    'ytd-watch-metadata h1',
+    '.ytd-video-primary-info-renderer h1'
+  ];
+  
+  let titleElement = null;
+  for (const selector of titleSelectors) {
+    titleElement = document.querySelector(selector);
+    if (titleElement) break;
+  }
 
-  // Get video duration from player
+  // Try multiple selectors for channel name
+  const channelSelectors = [
+    '#top-row .ytd-channel-name a',
+    '#channel-name a',
+    '#owner-name a',
+    'ytd-channel-name a',
+    '.ytd-video-owner-renderer a'
+  ];
+  
+  let channelElement = null;
+  for (const selector of channelSelectors) {
+    channelElement = document.querySelector(selector);
+    if (channelElement) break;
+  }
+
+  // Get video duration from player or page metadata
   const videoPlayer = document.querySelector("video");
-  const duration = videoPlayer ? formatDuration(videoPlayer.duration) : "";
+  let duration = "";
+  
+  if (videoPlayer && videoPlayer.duration) {
+    duration = formatDuration(videoPlayer.duration);
+  } else {
+    // Try to get duration from page metadata
+    const durationElement = document.querySelector('.ytp-time-duration');
+    if (durationElement) {
+      duration = durationElement.textContent || "";
+    }
+  }
 
   return {
     videoId,
@@ -237,7 +277,7 @@ export function getVideoMetadata() {
   };
 }
 
-// Format duration from seconds to readable format
+// Format duration from seconds to readable HH:MM:SS or MM:SS format
 function formatDuration(seconds: number): string {
   if (!seconds || isNaN(seconds)) return "";
 

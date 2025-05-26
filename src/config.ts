@@ -1,55 +1,74 @@
-// config.ts
-import { KnuggetConfig } from './types';
-import dotenv from 'dotenv';
+// config.ts - Updated with correct YouTube selectors
+import { KnuggetConfig } from "./types";
+import dotenv from "dotenv";
+
 
 export const config: KnuggetConfig = {
-  apiBaseUrl: process.env.NODE_ENV === 'production' 
-    ? 'https://api.knugget.com' 
-    : 'http://localhost:3000/api',
-  websiteUrl: process.env.NODE_ENV === 'production' 
-    ? 'https://knugget.com' 
-    : 'http://localhost:8000',
+  apiBaseUrl:
+    process.env.NODE_ENV === "production"
+      ? "https://api.knugget.com"
+      : "http://localhost:3000/api",
+  websiteUrl:
+    process.env.NODE_ENV === "production"
+      ? "https://knugget.com"
+      : "http://localhost:8000",
   refreshTokenThreshold: 5, // Refresh token if expiring within 5 minutes
   maxRetries: 3,
   retryDelay: 1000, // 1 second
 };
 
 export const selectors = {
-  // YouTube DOM selectors
+  // YouTube DOM selectors - Updated to match actual YouTube structure
   youtube: {
-    secondaryColumn: '#secondary',
-    videoTitle: 'h1.ytd-watch-metadata, h1.title, #container h1',
-    channelName: '#top-row .ytd-channel-name a, #channel-name a, #owner-name a',
-    transcriptButton: 'button[aria-label*="transcript" i], button[aria-label*="Transcript" i]',
-    transcriptSegments: 'ytd-transcript-segment-renderer, .segment',
-    expandButton: 'tp-yt-paper-button#expand, .more-button',
-    moreButton: '#top-level-buttons-computed ytd-menu-renderer'
+    // YouTube's secondary column where we inject our panel
+    secondaryColumn: "#secondary",
+
+    // Video title selectors (multiple fallbacks for different YouTube layouts)
+    videoTitle:
+      "h1.ytd-watch-metadata #title, h1.title, #container h1, ytd-watch-metadata h1",
+
+    // Channel name selectors
+    channelName:
+      "#top-row .ytd-channel-name a, #channel-name a, #owner-name a, ytd-channel-name a",
+
+    // Transcript related selectors
+    transcriptButton:
+      'button[aria-label*="transcript" i], button[aria-label*="Show transcript" i], ytd-button-renderer button:has-text("Show transcript")',
+    transcriptSegments:
+      "ytd-transcript-segment-renderer, .segment, .ytd-transcript-segment-renderer",
+
+    // Description expand button
+    expandButton: "tp-yt-paper-button#expand, .more-button, #expand",
+
+    // More actions menu
+    moreButton:
+      "#top-level-buttons-computed ytd-menu-renderer, ytd-menu-renderer",
   },
-  
+
   // Extension UI selectors
   knugget: {
-    container: '#knugget-panel',
-    tabTranscript: '#knugget-tab-transcript',
-    tabSummary: '#knugget-tab-summary',
-    contentTranscript: '#knugget-content-transcript',
-    contentSummary: '#knugget-content-summary',
-    loginButton: '#knugget-login-btn',
-    generateButton: '#knugget-generate-btn',
-    saveButton: '#knugget-save-btn'
-  }
+    container: "#knugget-panel",
+    tabTranscript: "#knugget-tab-transcript",
+    tabSummary: "#knugget-tab-summary",
+    contentTranscript: "#knugget-content-transcript",
+    contentSummary: "#knugget-content-summary",
+    loginButton: "#knugget-login-btn",
+    generateButton: "#knugget-generate-btn",
+    saveButton: "#knugget-save-btn",
+  },
 };
 
 export const storageKeys = {
-  AUTH_DATA: 'knugget_auth',
-  USER_PREFERENCES: 'knugget_preferences',
-  CACHED_SUMMARIES: 'knugget_summaries_cache',
-  LAST_SYNC: 'knugget_last_sync'
+  AUTH_DATA: "knugget_auth",
+  USER_PREFERENCES: "knugget_preferences",
+  CACHED_SUMMARIES: "knugget_summaries_cache",
+  LAST_SYNC: "knugget_last_sync",
 };
 
 export const events = {
-  AUTH_CHANGED: 'knugget:auth:changed',
-  VIDEO_CHANGED: 'knugget:video:changed',
-  TRANSCRIPT_READY: 'knugget:transcript:ready',
-  SUMMARY_READY: 'knugget:summary:ready',
-  ERROR: 'knugget:error'
+  AUTH_CHANGED: "knugget:auth:changed",
+  VIDEO_CHANGED: "knugget:video:changed",
+  TRANSCRIPT_READY: "knugget:transcript:ready",
+  SUMMARY_READY: "knugget:summary:ready",
+  ERROR: "knugget:error",
 } as const;

@@ -1,4 +1,4 @@
-// webpack.config.js
+// webpack.config.js - Fixed build configuration
 const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -45,6 +45,7 @@ module.exports = (env, argv) => {
         template: "./src/popup.html",
         filename: "popup.html",
         chunks: ["popup"],
+        minify: isProduction,
       }),
       new CopyWebpackPlugin({
         patterns: [

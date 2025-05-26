@@ -1,16 +1,286 @@
-/* styles.css - Knugget Extension Styles */
+/* Essential styles.css - Core styling for Knugget panel injection */
 
+/* Base extension container */
+.knugget-extension {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 465px;
+}
+
+/* Main panel box */
+.knugget-box {
+  background-color: #0f0f0f;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  height: 519px;
+  position: relative;
+  border: 1px solid #2d2d2d;
+}
+
+/* Header section */
+.knugget-header {
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+}
+
+.knugget-logo {
+  font-family: "AirbnbCerealApp-Black", Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 177, 0, 1) 0%,
+    rgba(255, 70, 6, 1) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.knugget-credits {
+  font-family: "AirbnbCerealApp-Medium", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  color: #ffffff;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+}
+
+/* Tab navigation */
+.knugget-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: #0f0f0f;
+}
+
+.knugget-tab {
+  flex: 1;
+  height: 42px;
+  border-radius: 21px;
+  font-family: "AirbnbCerealApp-Bold", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.knugget-tab-inactive {
+  background-color: #222222;
+  color: #cccccc;
+}
+
+.knugget-tab-active {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 177, 0, 1) 0%,
+    rgba(255, 70, 6, 1) 100%
+  );
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+/* Content area */
+.knugget-content {
+  margin: 10px 12px;
+  background-color: #121212;
+  border-radius: 10px;
+  height: 388px;
+  overflow: hidden;
+}
+
+.knugget-content-inner {
+  padding: 14px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Transcript styling */
+.transcript-segment {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+.transcript-segment:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.knugget-timestamp {
+  font-family: "Roboto Mono", monospace;
+  font-weight: 500;
+  color: #ffa500;
+  font-size: 13px;
+  min-width: 40px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.knugget-transcript-text {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Action buttons */
+.knugget-actions {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.knugget-save-btn {
+  height: 32px;
+  width: 64px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 177, 0, 1) 0%,
+    rgba(255, 70, 6, 1) 100%
+  );
+  color: #ffffff;
+  font-family: "AirbnbCerealApp-Bold", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.knugget-save-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.knugget-dashboard-btn {
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #333333;
+  color: #ffffff;
+  font-family: "AirbnbCerealApp-Bold", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.knugget-dashboard-btn:hover {
+  background: #444444;
+  transform: translateY(-1px);
+}
+
+/* Loading spinner */
+.knugget-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255, 177, 0, 0.1);
+  border-radius: 50%;
+  border-top: 2px solid rgba(255, 70, 6, 1);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Button styling */
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+}
+
+/* Custom scrollbar */
+.knugget-content-inner::-webkit-scrollbar {
+  width: 5px;
+}
+
+.knugget-content-inner::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2.5px;
+}
+
+.knugget-content-inner::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 177, 0, 0.5);
+  border-radius: 2.5px;
+}
+
+/* Ensure proper integration with YouTube */
+#secondary .knugget-extension {
+  margin-bottom: 16px;
+}
+
+/* styles.css - Knugget Extension Styles - Fixed for YouTube Integration */
+
+/* Base panel styling - matches YouTube's dark theme */
 .knugget-panel {
   position: relative;
   width: 100%;
   max-width: 400px;
   margin-bottom: 16px;
-  background: #ffffff;
+  background: #0f0f0f;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid #2d2d2d;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
+  color: #fff;
   z-index: 10;
   opacity: 0;
   transform: translateY(-20px);
@@ -23,13 +293,13 @@
   transform: translateY(0);
 }
 
-/* Header */
+/* Header styling with gradient background */
 .knugget-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #2d2d2d;
   background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   color: white;
 }
@@ -54,10 +324,10 @@
   font-weight: 500;
 }
 
-/* Tabs */
+/* Tab navigation styling */
 .knugget-tabs {
   display: flex;
-  background: #f8f9fa;
+  background: #1a1a1a;
   margin: 0;
   padding: 0;
 }
@@ -73,19 +343,19 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
+  color: #aaa;
   transition: all 0.2s ease;
   border-bottom: 2px solid transparent;
 }
 
 .knugget-tab:hover {
-  background: rgba(255, 107, 53, 0.05);
+  background: rgba(255, 107, 53, 0.1);
   color: #ff6b35;
 }
 
 .knugget-tab.active {
   color: #ff6b35;
-  background: white;
+  background: #0f0f0f;
   border-bottom-color: #ff6b35;
 }
 
@@ -94,7 +364,7 @@
   height: 14px;
 }
 
-/* Content */
+/* Content area styling */
 .knugget-content {
   max-height: 400px;
   overflow: hidden;
@@ -111,13 +381,13 @@
   display: block;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar for dark theme */
 .knugget-tab-content::-webkit-scrollbar {
   width: 4px;
 }
 
 .knugget-tab-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1a1a1a;
 }
 
 .knugget-tab-content::-webkit-scrollbar-thumb {
@@ -129,7 +399,7 @@
   background: #e55a2b;
 }
 
-/* Transcript */
+/* Transcript styling */
 .transcript-container {
   padding: 0;
 }
@@ -140,11 +410,11 @@
   padding: 12px 20px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .transcript-segment:hover {
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .transcript-segment:last-child {
@@ -156,10 +426,10 @@
   font-size: 11px;
   font-weight: 600;
   color: #ff6b35;
-  background: rgba(255, 107, 53, 0.1);
+  background: rgba(255, 107, 53, 0.2);
   padding: 2px 6px;
   border-radius: 4px;
-  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  font-family: "Roboto Mono", "SF Mono", "Monaco", "Consolas", monospace;
   line-height: 1.4;
   align-self: flex-start;
   margin-top: 2px;
@@ -169,10 +439,10 @@
   flex: 1;
   font-size: 13px;
   line-height: 1.5;
-  color: #374151;
+  color: #e0e0e0;
 }
 
-/* Summary */
+/* Summary styling */
 .summary-container {
   padding: 20px;
 }
@@ -188,11 +458,15 @@
 .summary-section h4 {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: #fff;
   margin: 0 0 12px 0;
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.summary-section h4 svg {
+  color: #ff6b35;
 }
 
 .key-points {
@@ -218,20 +492,20 @@
 .key-point .point-text {
   font-size: 13px;
   line-height: 1.5;
-  color: #374151;
+  color: #e0e0e0;
 }
 
 .full-summary {
-  background: #f8f9fa;
+  background: #1a1a1a;
   padding: 16px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #2d2d2d;
 }
 
 .full-summary p {
   font-size: 13px;
   line-height: 1.6;
-  color: #374151;
+  color: #e0e0e0;
   margin: 0;
 }
 
@@ -240,10 +514,10 @@
   gap: 8px;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #2d2d2d;
 }
 
-/* Auth Prompt */
+/* Authentication prompt styling */
 .knugget-auth-prompt {
   padding: 32px 20px;
   text-align: center;
@@ -256,13 +530,13 @@
 .knugget-auth-prompt h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: #fff;
   margin: 0 0 8px 0;
 }
 
 .knugget-auth-prompt p {
   font-size: 13px;
-  color: #6b7280;
+  color: #aaa;
   margin: 0 0 20px 0;
   line-height: 1.5;
 }
@@ -273,7 +547,7 @@
   gap: 8px;
 }
 
-/* Summary Prompt */
+/* Summary generation prompt */
 .knugget-summary-prompt {
   padding: 32px 20px;
   text-align: center;
@@ -286,18 +560,18 @@
 .knugget-summary-prompt h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: #fff;
   margin: 0 0 8px 0;
 }
 
 .knugget-summary-prompt p {
   font-size: 13px;
-  color: #6b7280;
+  color: #aaa;
   margin: 0 0 20px 0;
   line-height: 1.5;
 }
 
-/* Buttons */
+/* Button styling */
 .btn {
   padding: 10px 16px;
   border-radius: 8px;
@@ -326,27 +600,28 @@
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: #2d2d2d;
+  color: #fff;
+  border: 1px solid #444;
 }
 
 .btn-secondary:hover {
-  background: #e5e7eb;
-  border-color: #9ca3af;
+  background: #3a3a3a;
+  border-color: #555;
 }
 
 .btn-outline {
   background: transparent;
-  color: #6b7280;
-  border: 1px solid #d1d5db;
+  color: #aaa;
+  border: 1px solid #444;
   font-size: 12px;
   padding: 8px 12px;
 }
 
 .btn-outline:hover {
-  background: #f9fafb;
-  color: #374151;
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #ff6b35;
 }
 
 .btn-icon {
@@ -364,7 +639,7 @@
   color: white;
 }
 
-/* Loading States */
+/* Loading states */
 .knugget-loading {
   padding: 40px 20px;
   text-align: center;
@@ -373,7 +648,7 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #f3f4f6;
+  border: 3px solid #2d2d2d;
   border-top: 3px solid #ff6b35;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -392,16 +667,16 @@
 .knugget-loading p {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: #fff;
   margin: 0 0 4px 0;
 }
 
 .knugget-loading small {
   font-size: 12px;
-  color: #6b7280;
+  color: #aaa;
 }
 
-/* Error States */
+/* Error states */
 .knugget-error {
   padding: 40px 20px;
   text-align: center;
@@ -413,12 +688,12 @@
 
 .knugget-error p {
   font-size: 14px;
-  color: #6b7280;
+  color: #aaa;
   margin: 0 0 20px 0;
   line-height: 1.5;
 }
 
-/* Empty States */
+/* Empty states */
 .knugget-empty {
   padding: 40px 20px;
   text-align: center;
@@ -431,30 +706,29 @@
 
 .knugget-empty p {
   font-size: 14px;
-  color: #6b7280;
+  color: #aaa;
   margin: 0;
 }
 
-/* Footer */
+/* Footer styling */
 .knugget-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  color: white;
+  background: #1a1a1a;
+  border-top: 1px solid #2d2d2d;
 }
 
 .knugget-version {
   font-size: 11px;
-  opacity: 0.8;
+  color: #777;
   font-weight: 500;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments for different screen sizes */
 @media (max-height: 700px) {
   .knugget-panel {
-    top: 60px;
     max-height: calc(100vh - 80px);
   }
 
@@ -469,7 +743,6 @@
 
 @media (max-width: 1200px) {
   .knugget-panel {
-    right: 10px;
     width: 350px;
   }
 }
@@ -498,62 +771,56 @@
   outline-offset: 2px;
 }
 
-/* Hover effects for transcript segments */
+/* Hover effects for interactive elements */
 .transcript-segment:hover .timestamp {
-  background: rgba(255, 107, 53, 0.2);
+  background: rgba(255, 107, 53, 0.3);
   transform: scale(1.05);
 }
 
-/* Smooth transitions */
+/* Smooth transitions for all interactive elements */
 * {
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
+/* Integration with YouTube's existing styles */
+#secondary .knugget-panel {
+  margin-bottom: 16px;
+}
+
+/* Ensure panel doesn't interfere with YouTube's layout */
+.knugget-panel {
+  box-sizing: border-box;
+}
+
+.knugget-panel * {
+  box-sizing: border-box;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
   .knugget-panel {
-    background: #1f2937;
-    border-color: #374151;
-    color: #f9fafb;
-  }
-
-  .knugget-tabs {
-    background: #374151;
-  }
-
-  .knugget-tab {
-    color: #9ca3af;
+    border: 2px solid #fff;
   }
 
   .knugget-tab.active {
-    background: #1f2937;
-    color: #ff6b35;
+    background: #fff;
+    color: #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .knugget-panel,
+  .knugget-tab,
+  .btn,
+  .transcript-segment,
+  * {
+    transition: none;
+    animation: none;
   }
 
-  .transcript-segment:hover {
-    background-color: #374151;
-  }
-
-  .transcript-segment .text {
-    color: #f9fafb;
-  }
-
-  .full-summary {
-    background: #374151;
-    border-color: #4b5563;
-  }
-
-  .full-summary p {
-    color: #f9fafb;
-  }
-
-  .btn-secondary {
-    background: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
-  }
-
-  .btn-secondary:hover {
-    background: #4b5563;
+  .spinner {
+    animation: none;
+    border: 3px solid #ff6b35;
   }
 }
