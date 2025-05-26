@@ -1,4 +1,4 @@
-// content.ts - Fixed main content script matching old version's initialization pattern
+// content.ts - Fixed main content script with robust YouTube detection
 import "./styles.css";
 import { transcriptService } from "./services/transcript";
 import { apiService } from "./services/api";
@@ -28,41 +28,41 @@ let authState = {
   user: null as User | null,
 };
 
-// Main initialization function - matches old version's direct approach
+// Fix: Add comprehensive YouTube page detection
+function isYouTubeWatchPage(): boolean {
+  const pathname = window.location.pathname;
+  const search = window.location.search;
+  return pathname === "/watch" && search.includes("v=");
+}
+
+// Fix: Enhanced initialization that works for both page loads and SPA navigation
 function initializeKnuggetExtension(): void {
   console.log("🎯 Knugget Extension initializing...");
   
-  // Check if we're on a YouTube watch page
+  // Fix: Check multiple conditions for YouTube watch pages
   if (!isYouTubeWatchPage()) {
-    console.log("Not on YouTube watch page, setting up navigation listener...");
-    setupNavigationListener();
-    return;
+    console.log("Not on YouTube watch page, current URL:", window.location.href);
+    // Don't return - set up listeners for navigation
   }
 
   const videoId = getVideoId();
   console.log(`Initializing Knugget AI for video ID: ${videoId}`);
 
-  // Set up URL change detection for YouTube's SPA navigation
-  if (!isInitialized) {
-    setupURLChangeDetection();
-    console.log("Knugget AI: Setting up URL change detection");
-    isInitialized = true;
-  }
+  // Fix: Always set up navigation detection (not just once)
+  setupURLChangeDetection();
+  console.log("Knugget AI: Setting up URL change detection");
 
   // Set up auth refresh listener
   setupAuthRefreshListener();
   console.log("Setting up auth refresh listener");
 
-  // Process the current page
-  processCurrentPage(videoId);
+  // Process the current page if we have a video ID
+  if (videoId) {
+    processCurrentPage(videoId);
+  }
 }
 
-// Check if current page is a YouTube watch page
-function isYouTubeWatchPage(): boolean {
-  return window.location.pathname === "/watch" && !!getVideoId();
-}
-
-// Process current YouTube page and inject panel
+// Fix: Enhanced page processing with better error handling
 function processCurrentPage(videoId: string | null): void {
   console.log(`Knugget AI: Processing page for video ID ${videoId}`);
 
@@ -77,33 +77,38 @@ function processCurrentPage(videoId: string | null): void {
   chrome.runtime.sendMessage({
     type: "PAGE_LOADED",
     payload: { url: window.location.href, videoId },
+  }).catch(() => {
+    // Ignore errors if background script is not ready
   });
 
   // Remove existing panel if present
   removeExistingPanel();
 
-  // Start observing DOM for YouTube's secondary column
-  observeForSecondaryColumn();
-  console.log("Knugget AI: Observing DOM for secondary column");
+  // Fix: Add delay before observing to ensure YouTube DOM is ready
+  setTimeout(() => {
+    observeForSecondaryColumn();
+    console.log("Knugget AI: Observing DOM for secondary column");
+  }, 100);
 
   // Initialize auth state
   initializeAuthState();
 }
 
-// Observe DOM for YouTube's secondary column and inject panel when found
+// Fix: More robust DOM observation with multiple fallbacks
 function observeForSecondaryColumn(): void {
   // Check if secondary column already exists
   const secondaryColumn = document.getElementById("secondary");
   if (secondaryColumn) {
+    console.log("✅ YouTube secondary column found immediately!");
     injectKnuggetPanel(secondaryColumn);
     return;
   }
 
-  // Create mutation observer to watch for secondary column
+  // Fix: Use more aggressive observation strategy
   const observer = new MutationObserver((mutations) => {
     const secondaryColumn = document.getElementById("secondary");
     if (secondaryColumn && !knuggetPanel) {
-      console.log("✅ YouTube secondary column found!");
+      console.log("✅ YouTube secondary column found via observer!");
       injectKnuggetPanel(secondaryColumn);
       observer.disconnect();
     }
@@ -113,13 +118,32 @@ function observeForSecondaryColumn(): void {
   observer.observe(document.body, {
     childList: true,
     subtree: true,
+    attributes: true, // Fix: Also watch for attribute changes
+    attributeFilter: ['id', 'class'] // Fix: Specifically watch for id/class changes
   });
 
-  // Cleanup observer after 30 seconds to prevent memory leaks
-  setTimeout(() => {
-    observer.disconnect();
-    console.log("⏱️ DOM observer timeout reached");
-  }, 30000);
+  // Fix: Longer timeout and periodic checks
+  let attempts = 0;
+  const maxAttempts = 60; // 30 seconds with 500ms intervals
+  
+  const periodicCheck = setInterval(() => {
+    attempts++;
+    const secondaryColumn = document.getElementById("secondary");
+    
+    if (secondaryColumn && !knuggetPanel) {
+      console.log("✅ YouTube secondary column found via periodic check!");
+      injectKnuggetPanel(secondaryColumn);
+      clearInterval(periodicCheck);
+      observer.disconnect();
+      return;
+    }
+    
+    if (attempts >= maxAttempts) {
+      console.log("⏱️ Max attempts reached, stopping observation");
+      clearInterval(periodicCheck);
+      observer.disconnect();
+    }
+  }, 500);
 }
 
 // Inject Knugget panel into YouTube's secondary column
@@ -131,7 +155,7 @@ function injectKnuggetPanel(secondaryColumn: HTMLElement): void {
   panelContainer.id = "knugget-container";
   panelContainer.className = "knugget-extension";
 
-  // Create panel HTML structure matching old version
+  // Create panel HTML structure
   panelContainer.innerHTML = `
     <div class="knugget-box">
       <!-- Header with logo and credits -->
@@ -197,14 +221,6 @@ function injectKnuggetPanel(secondaryColumn: HTMLElement): void {
   // Load transcript by default
   loadAndDisplayTranscript();
   console.log("Knugget AI: Loading and displaying transcript");
-
-  // Check for video ID changes
-  const videoId = getVideoId();
-  if (currentVideoId !== videoId) {
-    console.log(`Video ID changed from ${currentVideoId} to ${videoId}`);
-    currentVideoId = videoId;
-    resetContentData();
-  }
 }
 
 // Set up event listeners for panel interactions
@@ -313,7 +329,6 @@ async function loadAndDisplaySummary(): Promise<void> {
 
   try {
     // Implementation for summary generation would go here
-    // For now, show placeholder
     summaryContent.innerHTML = `
       <div class="summary-placeholder">
         <p>Summary generation will be implemented here</p>
@@ -382,7 +397,7 @@ function showLoginRequired(element: HTMLElement): void {
   });
 }
 
-// Set up URL change detection for YouTube's SPA navigation
+// Fix: Enhanced URL change detection with multiple event listeners
 function setupURLChangeDetection(): void {
   let lastUrl = window.location.href;
 
@@ -402,7 +417,7 @@ function setupURLChangeDetection(): void {
         cleanup();
       }
     }
-  }, 500);
+  }, 300); // Fix: Reduced debounce time for faster response
 
   // Override history methods to catch programmatic navigation
   const originalPushState = history.pushState;
@@ -420,24 +435,22 @@ function setupURLChangeDetection(): void {
   // Listen for back/forward navigation
   window.addEventListener("popstate", handleURLChange);
 
-  // Listen for YouTube's custom navigation event
+  // Fix: Listen for YouTube's custom navigation events with multiple event types
   document.addEventListener("yt-navigate-finish", () => {
     console.log("YouTube navigation detected via yt-navigate-finish event");
-    setTimeout(handleURLChange, 300);
+    setTimeout(handleURLChange, 200);
   });
-}
 
-// Set up navigation listener for non-watch pages
-function setupNavigationListener(): void {
-  const checkForWatchPage = debounce(() => {
-    if (isYouTubeWatchPage()) {
-      initializeKnuggetExtension();
-    }
-  }, 500);
+  // Fix: Also listen for yt-navigate-start for earlier detection
+  document.addEventListener("yt-navigate-start", () => {
+    console.log("YouTube navigation starting via yt-navigate-start event");
+  });
 
-  // Listen for YouTube navigation events
-  document.addEventListener("yt-navigate-finish", checkForWatchPage);
-  window.addEventListener("popstate", checkForWatchPage);
+  // Fix: Listen for YouTube page data updates
+  document.addEventListener("yt-page-data-updated", () => {
+    console.log("YouTube page data updated");
+    setTimeout(handleURLChange, 100);
+  });
 }
 
 // Set up auth refresh listener for external login
@@ -492,7 +505,6 @@ function initializeAuthState(): void {
 
 // Reset content data when video changes
 function resetContentData(): void {
-  // Reset any cached transcript or summary data
   console.log("Content data reset for new video");
 }
 
@@ -512,18 +524,46 @@ function cleanup(): void {
   console.log("Cleanup completed - navigated away from watch page");
 }
 
-// Initialize extension when DOM is ready or immediately if already loaded
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initializeKnuggetExtension);
-} else {
-  initializeKnuggetExtension();
-}
-
-// Also initialize on script load regardless of DOM state
-setTimeout(() => {
-  if (!isInitialized && (document.readyState === "complete" || document.readyState === "interactive")) {
+// Fix: Multiple initialization strategies to ensure script runs
+function initializeWhenReady(): void {
+  // Strategy 1: Immediate initialization if DOM is ready
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    console.log("DOM ready, initializing immediately");
     initializeKnuggetExtension();
   }
-}, 100);
+  
+  // Strategy 2: Wait for DOMContentLoaded if not ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("DOMContentLoaded fired, initializing");
+      initializeKnuggetExtension();
+    });
+  }
+  
+  // Strategy 3: Fallback timeout initialization
+  setTimeout(() => {
+    if (!isInitialized) {
+      console.log("Fallback initialization triggered");
+      initializeKnuggetExtension();
+      isInitialized = true;
+    }
+  }, 1000);
+  
+  // Strategy 4: Listen for YouTube-specific ready events
+  if (window.location.hostname.includes('youtube.com')) {
+    // Wait for YouTube's app to be ready
+    const checkYouTubeReady = () => {
+      if (document.querySelector('#secondary') || document.querySelector('ytd-app')) {
+        console.log("YouTube app detected, initializing");
+        initializeKnuggetExtension();
+      } else {
+        setTimeout(checkYouTubeReady, 500);
+      }
+    };
+    setTimeout(checkYouTubeReady, 100);
+  }
+}
 
+// Fix: Start initialization immediately
 console.log("Knugget content script loaded and ready");
+initializeWhenReady();

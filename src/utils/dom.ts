@@ -1,11 +1,11 @@
-// utils/dom.ts - Enhanced YouTube integration
+// utils/dom.ts - Enhanced YouTube integration with robust selectors
 
 // Wait for specified milliseconds
 export function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Wait for an element to appear in the DOM with timeout
+// Fix: More robust element waiting with better error handling
 export function waitForElement(
   selector: string,
   timeout: number = 10000
@@ -31,46 +31,74 @@ export function waitForElement(
     // Set up timeout to prevent infinite waiting
     const timeoutId = setTimeout(() => {
       observer.disconnect();
+      console.warn(`Element not found within ${timeout}ms: ${selector}`);
       resolve(null);
     }, timeout);
 
-    // Start observing document changes
+    // Start observing document changes with more comprehensive config
     observer.observe(document.body, {
       childList: true,
       subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'id', 'style']
     });
   });
 }
 
-// Programmatically click an element with proper event simulation
+// Fix: Enhanced click function with multiple event types
 export async function clickElement(element: Element): Promise<void> {
-  if (element instanceof HTMLElement) {
-    // Try native click first for HTMLElements
-    element.click();
-  } else {
-    // Dispatch proper mouse events for other elements
-    element.dispatchEvent(
+  if (!element) {
+    console.warn("Cannot click null element");
+    return;
+  }
+
+  try {
+    // Method 1: Try native click for HTMLElements
+    if (element instanceof HTMLElement) {
+      element.click();
+      return;
+    }
+
+    // Method 2: Dispatch comprehensive mouse events
+    const events = [
       new MouseEvent("mousedown", {
         bubbles: true,
         cancelable: true,
         view: window,
-      })
-    );
-    await wait(50);
-    element.dispatchEvent(
+        button: 0
+      }),
       new MouseEvent("mouseup", {
         bubbles: true,
         cancelable: true,
         view: window,
-      })
-    );
-    element.dispatchEvent(
+        button: 0
+      }),
       new MouseEvent("click", {
         bubbles: true,
         cancelable: true,
         view: window,
+        button: 0
       })
-    );
+    ];
+
+    for (const event of events) {
+      element.dispatchEvent(event);
+      await wait(50); // Small delay between events
+    }
+
+    // Method 3: Try focus and enter key for accessibility
+    if (element instanceof HTMLElement) {
+      element.focus();
+      await wait(100);
+      element.dispatchEvent(new KeyboardEvent("keydown", {
+        key: "Enter",
+        code: "Enter",
+        bubbles: true,
+        cancelable: true
+      }));
+    }
+  } catch (error) {
+    console.error("Error clicking element:", error);
   }
 }
 
@@ -185,7 +213,7 @@ export function scrollIntoViewIfNeeded(element: Element): void {
   }
 }
 
-// Debounce function to limit rapid calls
+// Fix: Improved debounce function with proper typing
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -212,65 +240,124 @@ export function throttle<T extends (...args: any[]) => any>(
   };
 }
 
-// Extract YouTube video ID from current URL
+// Fix: Enhanced video ID extraction with multiple fallbacks
 export function getVideoId(): string | null {
+  // Method 1: URL parameter
   const url = new URL(window.location.href);
-  return url.searchParams.get("v");
+  let videoId = url.searchParams.get("v");
+  
+  if (videoId) {
+    return videoId;
+  }
+
+  // Method 2: Check for YouTube shorts format
+  const shortsMatch = window.location.pathname.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+  if (shortsMatch) {
+    return shortsMatch[1];
+  }
+
+  // Method 3: Extract from page data
+  try {
+    const ytInitialData = (window as any).ytInitialData;
+    if (ytInitialData?.contents?.twoColumnWatchNextResults?.results?.results?.contents?.[0]?.videoPrimaryInfoRenderer?.videoActions?.menuRenderer?.topLevelButtons) {
+      // Complex path to video ID in YouTube's data structure
+      const videoId = ytInitialData.currentVideoEndpoint?.watchEndpoint?.videoId;
+      if (videoId) return videoId;
+    }
+  } catch (e) {
+    // Ignore errors in data extraction
+  }
+
+  // Method 4: Look in canonical URL
+  const canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+  if (canonicalLink) {
+    const canonicalUrl = new URL(canonicalLink.href);
+    const canonicalVideoId = canonicalUrl.searchParams.get("v");
+    if (canonicalVideoId) return canonicalVideoId;
+  }
+
+  return null;
 }
 
-// Extract comprehensive video metadata from YouTube page
+// Fix: Enhanced video metadata extraction with robust selectors
 export function getVideoMetadata() {
   const videoId = getVideoId();
   if (!videoId) return null;
 
-  // Try multiple selectors for video title (YouTube changes layout frequently)
+  // Fix: More comprehensive title selectors for different YouTube layouts
   const titleSelectors = [
     'h1.ytd-watch-metadata #title',
     'h1.title',
     '#container h1',
     'ytd-watch-metadata h1',
-    '.ytd-video-primary-info-renderer h1'
+    '.ytd-video-primary-info-renderer h1',
+    'h1[class*="title"]',
+    '.ytd-videoPrimaryInfoRenderer h1',
+    'ytd-video-primary-info-renderer .title'
   ];
   
   let titleElement = null;
+  let title = "Unknown Title";
+  
   for (const selector of titleSelectors) {
     titleElement = document.querySelector(selector);
-    if (titleElement) break;
+    if (titleElement?.textContent?.trim()) {
+      title = titleElement.textContent.trim();
+      break;
+    }
   }
 
-  // Try multiple selectors for channel name
+  // Fix: More comprehensive channel selectors
   const channelSelectors = [
     '#top-row .ytd-channel-name a',
     '#channel-name a',
     '#owner-name a',
     'ytd-channel-name a',
-    '.ytd-video-owner-renderer a'
+    '.ytd-video-owner-renderer a',
+    'ytd-video-owner-renderer .ytd-channel-name a',
+    '#upload-info ytd-channel-name a',
+    '.ytd-c4-tabbed-header-renderer .ytd-channel-name a'
   ];
   
   let channelElement = null;
+  let channelName = "Unknown Channel";
+  
   for (const selector of channelSelectors) {
     channelElement = document.querySelector(selector);
-    if (channelElement) break;
+    if (channelElement?.textContent?.trim()) {
+      channelName = channelElement.textContent.trim();
+      break;
+    }
   }
 
-  // Get video duration from player or page metadata
-  const videoPlayer = document.querySelector("video");
+  // Fix: Better duration extraction
+  const videoPlayer = document.querySelector("video") as HTMLVideoElement;
   let duration = "";
   
   if (videoPlayer && videoPlayer.duration) {
     duration = formatDuration(videoPlayer.duration);
   } else {
     // Try to get duration from page metadata
-    const durationElement = document.querySelector('.ytp-time-duration');
-    if (durationElement) {
-      duration = durationElement.textContent || "";
+    const durationSelectors = [
+      '.ytp-time-duration',
+      '.ytd-thumbnail-overlay-time-status-renderer',
+      'span.ytd-thumbnail-overlay-time-status-renderer',
+      '.video-duration'
+    ];
+    
+    for (const selector of durationSelectors) {
+      const durationElement = document.querySelector(selector);
+      if (durationElement?.textContent?.trim()) {
+        duration = durationElement.textContent.trim();
+        break;
+      }
     }
   }
 
   return {
     videoId,
-    title: titleElement?.textContent?.trim() || "Unknown Title",
-    channelName: channelElement?.textContent?.trim() || "Unknown Channel",
+    title,
+    channelName,
     url: window.location.href,
     duration,
     thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,

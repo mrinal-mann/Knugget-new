@@ -1,4 +1,4 @@
-// services/transcript.ts - Fixed transcript extraction for YouTube
+// services/transcript.ts - Enhanced transcript extraction with better YouTube compatibility
 import { TranscriptSegment, ApiResponse } from "../types";
 import { selectors } from "../config";
 import { wait, waitForElement, clickElement } from "../utils/dom";
@@ -82,25 +82,24 @@ class TranscriptService {
     return false;
   }
 
-  // Attempt to open YouTube's transcript panel by clicking necessary buttons
+  // Fix: Enhanced transcript panel opening with multiple strategies
   private async openTranscriptPanel(): Promise<boolean> {
     try {
-      // Step 1: Try to expand description area if needed
-      const expandButton = document.querySelector(selectors.youtube.expandButton) as HTMLElement;
-      if (expandButton && this.isElementVisible(expandButton)) {
-        console.log("🔍 Clicking expand button to reveal transcript option...");
-        await clickElement(expandButton);
-        await wait(800);
-      }
+      // Strategy 1: Try to expand description area if needed
+      await this.tryExpandDescription();
 
-      // Step 2: Look for transcript button with multiple possible selectors  
+      // Strategy 2: Look for transcript button with multiple possible selectors  
       const transcriptSelectors = [
         'button[aria-label*="transcript" i]',
         'button[aria-label*="Show transcript" i]', 
         'ytd-button-renderer:has-text("Show transcript") button',
         'ytd-menu-service-item-renderer:has-text("Show transcript")',
         'button.yt-spec-button-shape-next--mono:has-text("Show transcript")',
-        '.ytd-transcript-button-renderer button'
+        '.ytd-transcript-button-renderer button',
+        // Fix: Add more YouTube transcript button selectors
+        '[aria-label="Show transcript"]',
+        'button[title*="transcript" i]',
+        'yt-button-shape button[aria-label*="transcript" i]'
       ];
 
       let transcriptButton = null;
@@ -108,6 +107,7 @@ class TranscriptService {
         try {
           transcriptButton = await waitForElement(selector, 2000);
           if (transcriptButton && this.isElementVisible(transcriptButton)) {
+            console.log(`🔍 Found transcript button with selector: ${selector}`);
             break;
           }
         } catch (e) {
@@ -115,8 +115,18 @@ class TranscriptService {
         }
       }
 
+      // Strategy 3: Try looking in the more actions menu
       if (!transcriptButton) {
-        console.log("❌ Transcript button not found");
+        transcriptButton = await this.findTranscriptInMoreMenu();
+      }
+
+      // Strategy 4: Try alternative methods for finding transcript
+      if (!transcriptButton) {
+        transcriptButton = await this.findTranscriptAlternative();
+      }
+
+      if (!transcriptButton) {
+        console.log("❌ Transcript button not found with any method");
         return false;
       }
 
@@ -127,7 +137,12 @@ class TranscriptService {
       await wait(1500);
 
       // Verify transcript segments are now visible
-      const segments = document.querySelectorAll(selectors.youtube.transcriptSegments);
+      const segments = document.querySelectorAll([
+        'ytd-transcript-segment-renderer',
+        '.ytd-transcript-segment-renderer',
+        '[class*="transcript-segment"]'
+      ].join(','));
+      
       const success = segments.length > 0;
       
       console.log(success ? "✅ Transcript panel opened successfully" : "❌ Transcript panel failed to open");
@@ -138,16 +153,167 @@ class TranscriptService {
     }
   }
 
-  // Extract existing transcript segments from the DOM
+  // Fix: Try to expand description to reveal transcript button
+  private async tryExpandDescription(): Promise<void> {
+    const expandSelectors = [
+      'tp-yt-paper-button#expand',
+      '.more-button',
+      '#expand',
+      'button[aria-label*="more" i]',
+      'ytd-text-inline-expander button'
+    ];
+
+    for (const selector of expandSelectors) {
+      const expandButton = document.querySelector(selector) as HTMLElement;
+      if (expandButton && this.isElementVisible(expandButton)) {
+        console.log("🔍 Clicking expand button to reveal transcript option...");
+        await clickElement(expandButton);
+        await wait(800);
+        break;
+      }
+    }
+  }
+
+  // Fix: Look for transcript option in more actions menu
+  private async findTranscriptInMoreMenu(): Promise<Element | null> {
+    try {
+      // Try to click more actions button
+      const moreButtonSelectors = [
+        '#top-level-buttons-computed ytd-menu-renderer button',
+        'ytd-menu-renderer button',
+        '[aria-label*="More actions" i]',
+        'button[aria-label*="more" i]'
+      ];
+
+      let moreButton = null;
+      for (const selector of moreButtonSelectors) {
+        moreButton = document.querySelector(selector) as HTMLElement;
+        if (moreButton && this.isElementVisible(moreButton)) {
+          break;
+        }
+      }
+
+      if (moreButton) {
+        console.log("🔍 Clicking more actions button...");
+        await clickElement(moreButton);
+        await wait(1000);
+
+        // Look for transcript option in the dropdown
+        const transcriptInMenu = await waitForElement(
+          'ytd-menu-service-item-renderer:has-text("transcript"), [role="menuitem"]:has-text("transcript")',
+          3000
+        );
+
+        if (transcriptInMenu) {
+          return transcriptInMenu;
+        }
+      }
+    } catch (error) {
+      console.log("Could not find transcript in more menu:", error);
+    }
+    
+    return null;
+  }
+
+  // Fix: Alternative methods to find transcript functionality
+  private async findTranscriptAlternative(): Promise<Element | null> {
+    // Method 1: Look for any element containing "transcript" text
+    const elements = Array.from(document.querySelectorAll('*'));
+    for (const element of elements) {
+      if (element.textContent?.toLowerCase().includes('transcript') && 
+          element.tagName === 'BUTTON') {
+        if (this.isElementVisible(element)) {
+          console.log("🔍 Found transcript button via text search");
+          return element;
+        }
+      }
+    }
+
+    // Method 2: Look in engagement panels
+    const engagementPanels = Array.from(document.querySelectorAll('ytd-engagement-panel-section-list-renderer'));
+    for (const panel of engagementPanels) {
+      const transcriptButton = panel.querySelector('button[aria-label*="transcript" i]');
+      if (transcriptButton && this.isElementVisible(transcriptButton)) {
+        console.log("🔍 Found transcript button in engagement panel");
+        return transcriptButton;
+      }
+    }
+
+    return null;
+  }
+
+  // Fix: Enhanced transcript segment extraction with multiple selectors
   private getExistingTranscriptSegments(): TranscriptSegment[] {
     const segments: TranscriptSegment[] = [];
 
     try {
-      const segmentElements = document.querySelectorAll(selectors.youtube.transcriptSegments);
+      // Try multiple selectors for transcript segments
+      const segmentSelectors = [
+        'ytd-transcript-segment-renderer',
+        '.ytd-transcript-segment-renderer',
+        '[class*="transcript-segment"]',
+        '.segment'
+      ];
+
+      let segmentElements: NodeListOf<Element> | null = null;
+      
+      for (const selector of segmentSelectors) {
+        segmentElements = document.querySelectorAll(selector);
+        if (segmentElements.length > 0) {
+          console.log(`Found ${segmentElements.length} transcript segments with selector: ${selector}`);
+          break;
+        }
+      }
+
+      if (!segmentElements || segmentElements.length === 0) {
+        return segments;
+      }
 
       segmentElements.forEach((element) => {
-        const timestampElement = element.querySelector(".segment-timestamp");
-        const textElement = element.querySelector(".segment-text");
+        // Try multiple selectors for timestamp and text within each segment
+        const timestampSelectors = [
+          '.segment-timestamp',
+          '.ytd-transcript-segment-renderer .segment-timestamp',
+          '[class*="timestamp"]',
+          '.transcript-timestamp'
+        ];
+
+        const textSelectors = [
+          '.segment-text',
+          '.ytd-transcript-segment-renderer .segment-text', 
+          '[class*="segment-text"]',
+          '.transcript-text'
+        ];
+
+        let timestampElement = null;
+        let textElement = null;
+
+        // Find timestamp element
+        for (const selector of timestampSelectors) {
+          timestampElement = element.querySelector(selector);
+          if (timestampElement) break;
+        }
+
+        // Find text element
+        for (const selector of textSelectors) {
+          textElement = element.querySelector(selector);
+          if (textElement) break;
+        }
+
+        // Fallback: if no specific selectors work, try to extract from element structure
+        if (!timestampElement || !textElement) {
+          const allText = element.textContent?.trim() || '';
+          // Try to parse format like "0:05 some text here"
+          const match = allText.match(/^(\d+:\d+)\s+(.+)$/);
+          if (match) {
+            segments.push({
+              timestamp: match[1],
+              text: match[2],
+              startSeconds: this.parseTimestamp(match[1]),
+            });
+            return;
+          }
+        }
 
         if (timestampElement && textElement) {
           const timestamp = timestampElement.textContent?.trim() || "";
