@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Knugget AI - YouTube Video Summarizer",
+  "version": "1.0.0",
+  "description": "AI-powered YouTube video summarization with intelligent insights",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "http://localhost:*/*",
+    "https://localhost:*/*",
+    "https://*.knugget.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Knugget AI"
+  },
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:*/*",
+      "https://localhost:*/*",
+      "https://*.knugget.com/*"
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["https://www.youtube.com/*"]
+    }
+  ]
+}

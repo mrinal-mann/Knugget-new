@@ -1,0 +1,55 @@
+// config.ts
+import { KnuggetConfig } from './types';
+import dotenv from 'dotenv';
+
+export const config: KnuggetConfig = {
+  apiBaseUrl: process.env.NODE_ENV === 'production' 
+    ? 'https://api.knugget.com' 
+    : 'http://localhost:3000/api',
+  websiteUrl: process.env.NODE_ENV === 'production' 
+    ? 'https://knugget.com' 
+    : 'http://localhost:8000',
+  refreshTokenThreshold: 5, // Refresh token if expiring within 5 minutes
+  maxRetries: 3,
+  retryDelay: 1000, // 1 second
+};
+
+export const selectors = {
+  // YouTube DOM selectors
+  youtube: {
+    secondaryColumn: '#secondary',
+    videoTitle: 'h1.ytd-watch-metadata',
+    channelName: '#top-row .ytd-channel-name a, #channel-name a',
+    transcriptButton: 'button[aria-label*="transcript"], button[aria-label*="Transcript"]',
+    transcriptSegments: 'ytd-transcript-segment-renderer',
+    expandButton: 'tp-yt-paper-button#expand',
+    moreButton: '#top-level-buttons-computed ytd-menu-renderer'
+  },
+  
+  // Extension UI selectors
+  knugget: {
+    container: '#knugget-panel',
+    tabTranscript: '#knugget-tab-transcript',
+    tabSummary: '#knugget-tab-summary',
+    contentTranscript: '#knugget-content-transcript',
+    contentSummary: '#knugget-content-summary',
+    loginButton: '#knugget-login-btn',
+    generateButton: '#knugget-generate-btn',
+    saveButton: '#knugget-save-btn'
+  }
+};
+
+export const storageKeys = {
+  AUTH_DATA: 'knugget_auth',
+  USER_PREFERENCES: 'knugget_preferences',
+  CACHED_SUMMARIES: 'knugget_summaries_cache',
+  LAST_SYNC: 'knugget_last_sync'
+};
+
+export const events = {
+  AUTH_CHANGED: 'knugget:auth:changed',
+  VIDEO_CHANGED: 'knugget:video:changed',
+  TRANSCRIPT_READY: 'knugget:transcript:ready',
+  SUMMARY_READY: 'knugget:summary:ready',
+  ERROR: 'knugget:error'
+} as const;

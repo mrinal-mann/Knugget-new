@@ -1,0 +1,33 @@
+{
+  "name": "knugget-extension",
+  "version": "1.0.0",
+  "description": "Knugget AI Chrome Extension - YouTube Video Summarizer",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=development --watch",
+    "clean": "rimraf dist",
+    "package": "npm run build && web-ext build --source-dir=dist --artifacts-dir=packages"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/chrome": "^0.0.323",
+    "@types/node": "^22.15.21",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.3",
+    "mini-css-extract-plugin": "^2.9.2",
+    "rimraf": "^6.0.1",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "web-ext": "^8.7.1",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "@types/dotenv": "^6.1.1",
+    "copy-webpack-plugin": "^13.0.0",
+    "dotenv": "^16.5.0"
+  }
+}
