@@ -1,23 +1,11 @@
-// content.ts - Fixed main content script with robust YouTube detection
+// content.ts - content script YouTube detection
 import "./styles.css";
 import { transcriptService } from "./services/transcript";
-import { apiService } from "./services/api";
-import { authService } from "./services/auth";
 import {
-  ExtensionState,
-  MessageType,
-  VideoMetadata,
-  TranscriptSegment,
-  Summary,
   User,
 } from "./types";
-import {
-  getVideoId,
-  getVideoMetadata,
-  waitForElement,
-  debounce,
-} from "./utils/dom";
-import { config } from "./config";
+import { getVideoId, debounce } from "./utils/dom";
+
 
 // Global state and tracking variables
 let currentVideoId: string | null = null;
@@ -28,18 +16,18 @@ let authState = {
   user: null as User | null,
 };
 
-// Fix: Add comprehensive YouTube page detection
+// Add comprehensive YouTube page detection
 function isYouTubeWatchPage(): boolean {
   const pathname = window.location.pathname;
   const search = window.location.search;
   return pathname === "/watch" && search.includes("v=");
 }
 
-// Fix: Enhanced initialization that works for both page loads and SPA navigation
+// Enhanced initialization that works for both page loads and SPA navigation
 function initializeKnuggetExtension(): void {
   console.log("🎯 Knugget Extension initializing...");
   
-  // Fix: Check multiple conditions for YouTube watch pages
+  // Check multiple conditions for YouTube watch pages
   if (!isYouTubeWatchPage()) {
     console.log("Not on YouTube watch page, current URL:", window.location.href);
     // Don't return - set up listeners for navigation
@@ -48,7 +36,7 @@ function initializeKnuggetExtension(): void {
   const videoId = getVideoId();
   console.log(`Initializing Knugget AI for video ID: ${videoId}`);
 
-  // Fix: Always set up navigation detection (not just once)
+  // Always set up navigation detection (not just once)
   setupURLChangeDetection();
   console.log("Knugget AI: Setting up URL change detection");
 
@@ -62,7 +50,7 @@ function initializeKnuggetExtension(): void {
   }
 }
 
-// Fix: Enhanced page processing with better error handling
+// Enhanced page processing with better error handling
 function processCurrentPage(videoId: string | null): void {
   console.log(`Knugget AI: Processing page for video ID ${videoId}`);
 
@@ -94,7 +82,7 @@ function processCurrentPage(videoId: string | null): void {
   initializeAuthState();
 }
 
-// Fix: More robust DOM observation with multiple fallbacks
+// More robust DOM observation with multiple fallbacks
 function observeForSecondaryColumn(): void {
   // Check if secondary column already exists
   const secondaryColumn = document.getElementById("secondary");
@@ -104,7 +92,7 @@ function observeForSecondaryColumn(): void {
     return;
   }
 
-  // Fix: Use more aggressive observation strategy
+  // Use more aggressive observation strategy
   const observer = new MutationObserver((mutations) => {
     const secondaryColumn = document.getElementById("secondary");
     if (secondaryColumn && !knuggetPanel) {
@@ -118,11 +106,11 @@ function observeForSecondaryColumn(): void {
   observer.observe(document.body, {
     childList: true,
     subtree: true,
-    attributes: true, // Fix: Also watch for attribute changes
-    attributeFilter: ['id', 'class'] // Fix: Specifically watch for id/class changes
+    attributes: true, // Also watch for attribute changes
+    attributeFilter: ['id', 'class'] // Specifically watch for id/class changes
   });
 
-  // Fix: Longer timeout and periodic checks
+  // Longer timeout and periodic checks
   let attempts = 0;
   const maxAttempts = 60; // 30 seconds with 500ms intervals
   
@@ -397,7 +385,7 @@ function showLoginRequired(element: HTMLElement): void {
   });
 }
 
-// Fix: Enhanced URL change detection with multiple event listeners
+// Enhanced URL change detection with multiple event listeners
 function setupURLChangeDetection(): void {
   let lastUrl = window.location.href;
 
@@ -435,7 +423,7 @@ function setupURLChangeDetection(): void {
   // Listen for back/forward navigation
   window.addEventListener("popstate", handleURLChange);
 
-  // Fix: Listen for YouTube's custom navigation events with multiple event types
+  // Listen for YouTube's custom navigation events with multiple event types
   document.addEventListener("yt-navigate-finish", () => {
     console.log("YouTube navigation detected via yt-navigate-finish event");
     setTimeout(handleURLChange, 200);
@@ -524,7 +512,7 @@ function cleanup(): void {
   console.log("Cleanup completed - navigated away from watch page");
 }
 
-// Fix: Multiple initialization strategies to ensure script runs
+// Multiple initialization strategies to ensure script runs
 function initializeWhenReady(): void {
   // Strategy 1: Immediate initialization if DOM is ready
   if (document.readyState === "complete" || document.readyState === "interactive") {
@@ -564,6 +552,6 @@ function initializeWhenReady(): void {
   }
 }
 
-// Fix: Start initialization immediately
+// Start initialization immediately
 console.log("Knugget content script loaded and ready");
 initializeWhenReady();
