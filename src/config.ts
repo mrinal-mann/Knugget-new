@@ -2,7 +2,6 @@
 import { KnuggetConfig } from "./types";
 import dotenv from "dotenv";
 
-
 export const config: KnuggetConfig = {
   apiBaseUrl:
     process.env.NODE_ENV === "production"

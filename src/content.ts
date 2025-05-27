@@ -1,11 +1,8 @@
 // content.ts - content script YouTube detection
 import "./styles.css";
 import { transcriptService } from "./services/transcript";
-import {
-  User,
-} from "./types";
+import { User } from "./types";
 import { getVideoId, debounce } from "./utils/dom";
-
 
 // Global state and tracking variables
 let currentVideoId: string | null = null;
@@ -26,10 +23,13 @@ function isYouTubeWatchPage(): boolean {
 // Enhanced initialization that works for both page loads and SPA navigation
 function initializeKnuggetExtension(): void {
   console.log("🎯 Knugget Extension initializing...");
-  
+
   // Check multiple conditions for YouTube watch pages
   if (!isYouTubeWatchPage()) {
-    console.log("Not on YouTube watch page, current URL:", window.location.href);
+    console.log(
+      "Not on YouTube watch page, current URL:",
+      window.location.href
+    );
     // Don't return - set up listeners for navigation
   }
 
@@ -62,12 +62,14 @@ function processCurrentPage(videoId: string | null): void {
   }
 
   // Send page loaded message to background script
-  chrome.runtime.sendMessage({
-    type: "PAGE_LOADED",
-    payload: { url: window.location.href, videoId },
-  }).catch(() => {
-    // Ignore errors if background script is not ready
-  });
+  chrome.runtime
+    .sendMessage({
+      type: "PAGE_LOADED",
+      payload: { url: window.location.href, videoId },
+    })
+    .catch(() => {
+      // Ignore errors if background script is not ready
+    });
 
   // Remove existing panel if present
   removeExistingPanel();
@@ -107,17 +109,17 @@ function observeForSecondaryColumn(): void {
     childList: true,
     subtree: true,
     attributes: true, // Also watch for attribute changes
-    attributeFilter: ['id', 'class'] // Specifically watch for id/class changes
+    attributeFilter: ["id", "class"], // Specifically watch for id/class changes
   });
 
   // Longer timeout and periodic checks
   let attempts = 0;
   const maxAttempts = 60; // 30 seconds with 500ms intervals
-  
+
   const periodicCheck = setInterval(() => {
     attempts++;
     const secondaryColumn = document.getElementById("secondary");
-    
+
     if (secondaryColumn && !knuggetPanel) {
       console.log("✅ YouTube secondary column found via periodic check!");
       injectKnuggetPanel(secondaryColumn);
@@ -125,7 +127,7 @@ function observeForSecondaryColumn(): void {
       observer.disconnect();
       return;
     }
-    
+
     if (attempts >= maxAttempts) {
       console.log("⏱️ Max attempts reached, stopping observation");
       clearInterval(periodicCheck);
@@ -230,7 +232,8 @@ function setupPanelEventListeners(): void {
     summaryTab?.classList.add("knugget-tab-inactive");
 
     // Show transcript, hide summary
-    if (transcriptContent) (transcriptContent as HTMLElement).style.display = "block";
+    if (transcriptContent)
+      (transcriptContent as HTMLElement).style.display = "block";
     if (summaryContent) (summaryContent as HTMLElement).style.display = "none";
     if (saveButton) (saveButton as HTMLElement).style.display = "none";
 
@@ -246,7 +249,8 @@ function setupPanelEventListeners(): void {
 
     // Show summary, hide transcript
     if (summaryContent) (summaryContent as HTMLElement).style.display = "block";
-    if (transcriptContent) (transcriptContent as HTMLElement).style.display = "none";
+    if (transcriptContent)
+      (transcriptContent as HTMLElement).style.display = "none";
     if (saveButton) (saveButton as HTMLElement).style.display = "block";
 
     loadAndDisplaySummary();
@@ -269,23 +273,29 @@ async function loadAndDisplayTranscript(): Promise<void> {
 
   try {
     // Add delay to ensure YouTube has fully loaded
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Extract transcript
     const transcriptResponse = await transcriptService.extractTranscript();
 
     if (!transcriptResponse.success || !transcriptResponse.data) {
-      throw new Error(transcriptResponse.error || "Failed to extract transcript");
+      throw new Error(
+        transcriptResponse.error || "Failed to extract transcript"
+      );
     }
 
     // Display transcript segments
     const segments = transcriptResponse.data;
-    const segmentsHTML = segments.map(segment => `
+    const segmentsHTML = segments
+      .map(
+        (segment) => `
       <div class="transcript-segment">
         <span class="knugget-timestamp">${segment.timestamp}</span>
         <span class="knugget-transcript-text">${segment.text}</span>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
 
     transcriptContent.innerHTML = `
       <div class="space-y-2 p-2">
@@ -296,7 +306,8 @@ async function loadAndDisplayTranscript(): Promise<void> {
     const videoId = getVideoId();
     console.log(`Transcript loaded successfully for video ID: ${videoId}`);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     console.error("Transcript extraction error:", errorMessage);
     showError(transcriptContent, errorMessage, loadAndDisplayTranscript);
   }
@@ -323,7 +334,8 @@ async function loadAndDisplaySummary(): Promise<void> {
       </div>
     `;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     console.error("Summary generation error:", errorMessage);
     showError(summaryContent, errorMessage, loadAndDisplaySummary);
   }
@@ -341,7 +353,11 @@ function showLoading(element: HTMLElement, message: string = "Loading"): void {
 }
 
 // Show error state with retry option
-function showError(element: HTMLElement, message: string, retryFn?: () => void): void {
+function showError(
+  element: HTMLElement,
+  message: string,
+  retryFn?: () => void
+): void {
   element.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; text-align: center;">
       <div style="margin-bottom: 20px; color: #ff5757;">
@@ -353,7 +369,11 @@ function showError(element: HTMLElement, message: string, retryFn?: () => void):
       </div>
       <p style="color: #ffffff; margin-bottom: 8px;">Error</p>
       <p style="color: #aaaaaa; margin-bottom: 20px;">${message}</p>
-      ${retryFn ? '<button id="retry-btn" class="btn btn-primary">Try Again</button>' : ''}
+      ${
+        retryFn
+          ? '<button id="retry-btn" class="btn btn-primary">Try Again</button>'
+          : ""
+      }
     </div>
   `;
 
@@ -448,26 +468,37 @@ function setupAuthRefreshListener(): void {
       console.log("Received auth refresh message:", message);
 
       if (message.payload?.forceCheck) {
-        chrome.runtime.sendMessage({ type: "FORCE_CHECK_WEBSITE_LOGIN" }, () => {
-          console.log("Forced website login check after external auth refresh");
-          
-          // Update auth state
-          chrome.storage.local.get(["knuggetUserInfo"], (result) => {
-            const isLoggedIn = !!(result.knuggetUserInfo && result.knuggetUserInfo.token);
-            console.log("Auth state after refresh:", isLoggedIn ? "Logged in" : "Not logged in");
-            
-            authState.isAuthenticated = isLoggedIn;
-            authState.user = result.knuggetUserInfo || null;
+        chrome.runtime.sendMessage(
+          { type: "FORCE_CHECK_WEBSITE_LOGIN" },
+          () => {
+            console.log(
+              "Forced website login check after external auth refresh"
+            );
 
-            // Refresh UI if logged in
-            if (isLoggedIn && knuggetPanel) {
-              const summaryContent = document.getElementById("summary-content");
-              if (summaryContent && summaryContent.style.display !== "none") {
-                loadAndDisplaySummary();
+            // Update auth state
+            chrome.storage.local.get(["knuggetUserInfo"], (result) => {
+              const isLoggedIn = !!(
+                result.knuggetUserInfo && result.knuggetUserInfo.token
+              );
+              console.log(
+                "Auth state after refresh:",
+                isLoggedIn ? "Logged in" : "Not logged in"
+              );
+
+              authState.isAuthenticated = isLoggedIn;
+              authState.user = result.knuggetUserInfo || null;
+
+              // Refresh UI if logged in
+              if (isLoggedIn && knuggetPanel) {
+                const summaryContent =
+                  document.getElementById("summary-content");
+                if (summaryContent && summaryContent.style.display !== "none") {
+                  loadAndDisplaySummary();
+                }
               }
-            }
-          });
-        });
+            });
+          }
+        );
       }
 
       sendResponse({ received: true });
@@ -515,11 +546,14 @@ function cleanup(): void {
 // Multiple initialization strategies to ensure script runs
 function initializeWhenReady(): void {
   // Strategy 1: Immediate initialization if DOM is ready
-  if (document.readyState === "complete" || document.readyState === "interactive") {
+  if (
+    document.readyState === "complete" ||
+    document.readyState === "interactive"
+  ) {
     console.log("DOM ready, initializing immediately");
     initializeKnuggetExtension();
   }
-  
+
   // Strategy 2: Wait for DOMContentLoaded if not ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
@@ -527,7 +561,7 @@ function initializeWhenReady(): void {
       initializeKnuggetExtension();
     });
   }
-  
+
   // Strategy 3: Fallback timeout initialization
   setTimeout(() => {
     if (!isInitialized) {
@@ -536,12 +570,15 @@ function initializeWhenReady(): void {
       isInitialized = true;
     }
   }, 1000);
-  
+
   // Strategy 4: Listen for YouTube-specific ready events
-  if (window.location.hostname.includes('youtube.com')) {
+  if (window.location.hostname.includes("youtube.com")) {
     // Wait for YouTube's app to be ready
     const checkYouTubeReady = () => {
-      if (document.querySelector('#secondary') || document.querySelector('ytd-app')) {
+      if (
+        document.querySelector("#secondary") ||
+        document.querySelector("ytd-app")
+      ) {
         console.log("YouTube app detected, initializing");
         initializeKnuggetExtension();
       } else {

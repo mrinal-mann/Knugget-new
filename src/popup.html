@@ -1,337 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Knugget AI</title>
-  <style>
-    body {
-      width: 350px;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-      background: #ffffff;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Knugget AI</title>
+    <style>
+      body {
+        width: 350px;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          sans-serif;
+        background: #ffffff;
+      }
 
-    .popup-header {
-      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
+      .popup-header {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
 
-    .popup-header .logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
+      .popup-header .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
 
-    .popup-header .tagline {
-      font-size: 13px;
-      opacity: 0.9;
-    }
+      .popup-header .tagline {
+        font-size: 13px;
+        opacity: 0.9;
+      }
 
-    .popup-content {
-      padding: 20px;
-    }
+      .popup-content {
+        padding: 20px;
+      }
 
-    .status-section {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
+      .status-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
 
-    .status-icon {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #10b981;
-    }
+      .status-icon {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #10b981;
+      }
 
-    .status-icon.inactive {
-      background: #6b7280;
-    }
+      .status-icon.inactive {
+        background: #6b7280;
+      }
 
-    .status-text {
-      flex: 1;
-      font-size: 14px;
-      color: #374151;
-    }
+      .status-text {
+        flex: 1;
+        font-size: 14px;
+        color: #374151;
+      }
 
-    .user-section {
-      margin-bottom: 20px;
-    }
+      .user-section {
+        margin-bottom: 20px;
+      }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
 
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
-    }
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+      }
 
-    .user-details {
-      flex: 1;
-    }
+      .user-details {
+        flex: 1;
+      }
 
-    .user-name {
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 4px;
-    }
+      .user-name {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
 
-    .user-credits {
-      font-size: 12px;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
+      .user-credits {
+        font-size: 12px;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
 
-    .credit-badge {
-      background: #ff6b35;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 500;
-    }
+      .credit-badge {
+        background: #ff6b35;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+      }
 
-    .login-section {
-      text-align: center;
-      padding: 20px 0;
-    }
+      .login-section {
+        text-align: center;
+        padding: 20px 0;
+      }
 
-    .login-section h3 {
-      margin: 0 0 8px 0;
-      font-size: 16px;
-      color: #1f2937;
-    }
+      .login-section h3 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        color: #1f2937;
+      }
 
-    .login-section p {
-      margin: 0 0 20px 0;
-      font-size: 13px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
+      .login-section p {
+        margin: 0 0 20px 0;
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.5;
+      }
 
-    .actions {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
 
-    .btn {
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-    }
+      .btn {
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+      }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-      color: white;
-    }
+      .btn-primary {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        color: white;
+      }
 
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-    }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+      }
 
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #374151;
-      border: 1px solid #d1d5db;
-    }
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+      }
 
-    .btn-secondary:hover {
-      background: #e5e7eb;
-    }
+      .btn-secondary:hover {
+        background: #e5e7eb;
+      }
 
-    .btn-outline {
-      background: transparent;
-      color: #6b7280;
-      border: 1px solid #d1d5db;
-    }
+      .btn-outline {
+        background: transparent;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
+      }
 
-    .btn-outline:hover {
-      background: #f9fafb;
-      color: #374151;
-    }
+      .btn-outline:hover {
+        background: #f9fafb;
+        color: #374151;
+      }
 
-    .quick-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
+      .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
 
-    .action-btn {
-      padding: 12px 8px;
-      background: #f8f9fa;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: center;
-      font-size: 13px;
-      color: #374151;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
+      .action-btn {
+        padding: 12px 8px;
+        background: #f8f9fa;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        font-size: 13px;
+        color: #374151;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
 
-    .action-btn:hover {
-      background: #e5e7eb;
-      border-color: #d1d5db;
-    }
+      .action-btn:hover {
+        background: #e5e7eb;
+        border-color: #d1d5db;
+      }
 
-    .action-btn svg {
-      width: 20px;
-      height: 20px;
-      margin-bottom: 4px;
-    }
+      .action-btn svg {
+        width: 20px;
+        height: 20px;
+        margin-bottom: 4px;
+      }
 
-    .footer {
-      padding: 16px 20px;
-      border-top: 1px solid #e5e7eb;
-      background: #f8f9fa;
-      text-align: center;
-      font-size: 11px;
-      color: #6b7280;
-    }
+      .footer {
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8f9fa;
+        text-align: center;
+        font-size: 11px;
+        color: #6b7280;
+      }
 
-    .footer a {
-      color: #ff6b35;
-      text-decoration: none;
-      margin: 0 8px;
-    }
+      .footer a {
+        color: #ff6b35;
+        text-decoration: none;
+        margin: 0 8px;
+      }
 
-    .footer a:hover {
-      text-decoration: underline;
-    }
+      .footer a:hover {
+        text-decoration: underline;
+      }
 
-    .hidden {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="popup-header">
-    <div class="logo">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L22 12L12 22L2 12L12 2Z"/>
-      </svg>
-      Knugget AI
-    </div>
-    <div class="tagline">AI-powered YouTube summaries</div>
-  </div>
-
-  <div class="popup-content">
-    <!-- Status Section -->
-    <div class="status-section">
-      <div class="status-icon" id="status-icon"></div>
-      <div class="status-text" id="status-text">Checking status...</div>
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="popup-header">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L22 12L12 22L2 12L12 2Z" />
+        </svg>
+        Knugget AI
+      </div>
+      <div class="tagline">AI-powered YouTube summaries</div>
     </div>
 
-    <!-- User Section (shown when logged in) -->
-    <div class="user-section hidden" id="user-section">
-      <div class="user-info">
-        <div class="user-avatar" id="user-avatar">U</div>
-        <div class="user-details">
-          <div class="user-name" id="user-name">User Name</div>
-          <div class="user-credits">
-            <span id="user-credits-text">0 credits</span>
-            <span class="credit-badge" id="user-plan">Free</span>
+    <div class="popup-content">
+      <!-- Status Section -->
+      <div class="status-section">
+        <div class="status-icon" id="status-icon"></div>
+        <div class="status-text" id="status-text">Checking status...</div>
+      </div>
+
+      <!-- User Section (shown when logged in) -->
+      <div class="user-section hidden" id="user-section">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">User Name</div>
+            <div class="user-credits">
+              <span id="user-credits-text">0 credits</span>
+              <span class="credit-badge" id="user-plan">Free</span>
+            </div>
           </div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="action-btn" id="dashboard-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"
+              />
+            </svg>
+            Dashboard
+          </button>
+          <button class="action-btn" id="summaries-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
+              />
+            </svg>
+            Summaries
+          </button>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-outline" id="settings-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"
+              />
+            </svg>
+            Settings
+          </button>
+          <button class="btn btn-outline" id="logout-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"
+              />
+            </svg>
+            Sign Out
+          </button>
         </div>
       </div>
 
-      <div class="quick-actions">
-        <button class="action-btn" id="dashboard-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-          </svg>
-          Dashboard
-        </button>
-        <button class="action-btn" id="summaries-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"/>
-          </svg>
-          Summaries
-        </button>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-outline" id="settings-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
-          </svg>
-          Settings
-        </button>
-        <button class="btn btn-outline" id="logout-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"/>
-          </svg>
-          Sign Out
-        </button>
+      <!-- Login Section (shown when not logged in) -->
+      <div class="login-section" id="login-section">
+        <h3>Sign in to Knugget</h3>
+        <p>Generate AI summaries and save your favorite video insights</p>
+        <div class="actions">
+          <button class="btn btn-primary" id="login-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+              />
+            </svg>
+            Sign In
+          </button>
+          <button class="btn btn-secondary" id="signup-btn">
+            Create Account
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Login Section (shown when not logged in) -->
-    <div class="login-section" id="login-section">
-      <h3>Sign in to Knugget</h3>
-      <p>Generate AI summaries and save your favorite video insights</p>
-      <div class="actions">
-        <button class="btn btn-primary" id="login-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
-          </svg>
-          Sign In
-        </button>
-        <button class="btn btn-secondary" id="signup-btn">Create Account</button>
-      </div>
+    <div class="footer">
+      <a href="#" id="help-link">Help</a>
+      <a href="#" id="feedback-link">Feedback</a>
+      <span>v1.0.0</span>
     </div>
-  </div>
 
-  <div class="footer">
-    <a href="#" id="help-link">Help</a>
-    <a href="#" id="feedback-link">Feedback</a>
-    <span>v1.0.0</span>
-  </div>
-
-  <script src="popup.js"></script>
-</body>
+    <script src="popup.js"></script>
+  </body>
 </html>

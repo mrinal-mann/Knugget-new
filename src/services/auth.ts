@@ -2,7 +2,7 @@
 /// <reference types="chrome" />
 import { AuthData, User, ApiResponse } from "../types";
 import { config, storageKeys } from "../config";
-import { apiRequest } from "./api";   
+import { apiRequest } from "./api";
 
 class AuthService {
   private authData: AuthData | null = null;

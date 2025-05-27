@@ -3,7 +3,13 @@
   "name": "Knugget AI - YouTube Video Summarizer",
   "version": "1.0.0",
   "description": "AI-powered YouTube video summarization with intelligent insights",
-  "permissions": ["storage", "activeTab", "scripting", "notifications", "cookies"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "notifications",
+    "cookies"
+  ],
   "host_permissions": [
     "https://www.youtube.com/*",
     "http://localhost:*/*",
@@ -16,9 +22,7 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.youtube.com/*"
-      ],
+      "matches": ["https://www.youtube.com/*"],
       "js": ["youtube.js"],
       "css": ["styles.css"],
       "run_at": "document_end"

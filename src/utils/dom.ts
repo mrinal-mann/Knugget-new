@@ -40,7 +40,7 @@ export function waitForElement(
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['class', 'id', 'style']
+      attributeFilter: ["class", "id", "style"],
     });
   });
 }
@@ -65,20 +65,20 @@ export async function clickElement(element: Element): Promise<void> {
         bubbles: true,
         cancelable: true,
         view: window,
-        button: 0
+        button: 0,
       }),
       new MouseEvent("mouseup", {
         bubbles: true,
         cancelable: true,
         view: window,
-        button: 0
+        button: 0,
       }),
       new MouseEvent("click", {
         bubbles: true,
         cancelable: true,
         view: window,
-        button: 0
-      })
+        button: 0,
+      }),
     ];
 
     for (const event of events) {
@@ -90,12 +90,14 @@ export async function clickElement(element: Element): Promise<void> {
     if (element instanceof HTMLElement) {
       element.focus();
       await wait(100);
-      element.dispatchEvent(new KeyboardEvent("keydown", {
-        key: "Enter",
-        code: "Enter",
-        bubbles: true,
-        cancelable: true
-      }));
+      element.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "Enter",
+          code: "Enter",
+          bubbles: true,
+          cancelable: true,
+        })
+      );
     }
   } catch (error) {
     console.error("Error clicking element:", error);
@@ -245,13 +247,15 @@ export function getVideoId(): string | null {
   // Method 1: URL parameter
   const url = new URL(window.location.href);
   let videoId = url.searchParams.get("v");
-  
+
   if (videoId) {
     return videoId;
   }
 
   // Method 2: Check for YouTube shorts format
-  const shortsMatch = window.location.pathname.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+  const shortsMatch = window.location.pathname.match(
+    /\/shorts\/([a-zA-Z0-9_-]+)/
+  );
   if (shortsMatch) {
     return shortsMatch[1];
   }
@@ -259,9 +263,14 @@ export function getVideoId(): string | null {
   // Method 3: Extract from page data
   try {
     const ytInitialData = (window as any).ytInitialData;
-    if (ytInitialData?.contents?.twoColumnWatchNextResults?.results?.results?.contents?.[0]?.videoPrimaryInfoRenderer?.videoActions?.menuRenderer?.topLevelButtons) {
+    if (
+      ytInitialData?.contents?.twoColumnWatchNextResults?.results?.results
+        ?.contents?.[0]?.videoPrimaryInfoRenderer?.videoActions?.menuRenderer
+        ?.topLevelButtons
+    ) {
       // Complex path to video ID in YouTube's data structure
-      const videoId = ytInitialData.currentVideoEndpoint?.watchEndpoint?.videoId;
+      const videoId =
+        ytInitialData.currentVideoEndpoint?.watchEndpoint?.videoId;
       if (videoId) return videoId;
     }
   } catch (e) {
@@ -269,7 +278,9 @@ export function getVideoId(): string | null {
   }
 
   // Method 4: Look in canonical URL
-  const canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+  const canonicalLink = document.querySelector(
+    'link[rel="canonical"]'
+  ) as HTMLLinkElement;
   if (canonicalLink) {
     const canonicalUrl = new URL(canonicalLink.href);
     const canonicalVideoId = canonicalUrl.searchParams.get("v");
@@ -286,19 +297,19 @@ export function getVideoMetadata() {
 
   // Fix: More comprehensive title selectors for different YouTube layouts
   const titleSelectors = [
-    'h1.ytd-watch-metadata #title',
-    'h1.title',
-    '#container h1',
-    'ytd-watch-metadata h1',
-    '.ytd-video-primary-info-renderer h1',
+    "h1.ytd-watch-metadata #title",
+    "h1.title",
+    "#container h1",
+    "ytd-watch-metadata h1",
+    ".ytd-video-primary-info-renderer h1",
     'h1[class*="title"]',
-    '.ytd-videoPrimaryInfoRenderer h1',
-    'ytd-video-primary-info-renderer .title'
+    ".ytd-videoPrimaryInfoRenderer h1",
+    "ytd-video-primary-info-renderer .title",
   ];
-  
+
   let titleElement = null;
   let title = "Unknown Title";
-  
+
   for (const selector of titleSelectors) {
     titleElement = document.querySelector(selector);
     if (titleElement?.textContent?.trim()) {
@@ -309,19 +320,19 @@ export function getVideoMetadata() {
 
   // Fix: More comprehensive channel selectors
   const channelSelectors = [
-    '#top-row .ytd-channel-name a',
-    '#channel-name a',
-    '#owner-name a',
-    'ytd-channel-name a',
-    '.ytd-video-owner-renderer a',
-    'ytd-video-owner-renderer .ytd-channel-name a',
-    '#upload-info ytd-channel-name a',
-    '.ytd-c4-tabbed-header-renderer .ytd-channel-name a'
+    "#top-row .ytd-channel-name a",
+    "#channel-name a",
+    "#owner-name a",
+    "ytd-channel-name a",
+    ".ytd-video-owner-renderer a",
+    "ytd-video-owner-renderer .ytd-channel-name a",
+    "#upload-info ytd-channel-name a",
+    ".ytd-c4-tabbed-header-renderer .ytd-channel-name a",
   ];
-  
+
   let channelElement = null;
   let channelName = "Unknown Channel";
-  
+
   for (const selector of channelSelectors) {
     channelElement = document.querySelector(selector);
     if (channelElement?.textContent?.trim()) {
@@ -333,18 +344,18 @@ export function getVideoMetadata() {
   // Fix: Better duration extraction
   const videoPlayer = document.querySelector("video") as HTMLVideoElement;
   let duration = "";
-  
+
   if (videoPlayer && videoPlayer.duration) {
     duration = formatDuration(videoPlayer.duration);
   } else {
     // Try to get duration from page metadata
     const durationSelectors = [
-      '.ytp-time-duration',
-      '.ytd-thumbnail-overlay-time-status-renderer',
-      'span.ytd-thumbnail-overlay-time-status-renderer',
-      '.video-duration'
+      ".ytp-time-duration",
+      ".ytd-thumbnail-overlay-time-status-renderer",
+      "span.ytd-thumbnail-overlay-time-status-renderer",
+      ".video-duration",
     ];
-    
+
     for (const selector of durationSelectors) {
       const durationElement = document.querySelector(selector);
       if (durationElement?.textContent?.trim()) {

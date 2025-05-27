@@ -12,7 +12,10 @@ class TranscriptService {
       // First check if transcript segments are already visible
       const existingSegments = this.getExistingTranscriptSegments();
       if (existingSegments.length > 0) {
-        console.log("✅ Found existing transcript segments:", existingSegments.length);
+        console.log(
+          "✅ Found existing transcript segments:",
+          existingSegments.length
+        );
         return { success: true, data: existingSegments };
       }
 
@@ -29,7 +32,8 @@ class TranscriptService {
       if (!opened) {
         return {
           success: false,
-          error: "Unable to open transcript panel. This video may not have a transcript available.",
+          error:
+            "Unable to open transcript panel. This video may not have a transcript available.",
         };
       }
 
@@ -49,17 +53,24 @@ class TranscriptService {
       if (segments.length === 0) {
         return {
           success: false,
-          error: "No transcript segments found. This video may not have captions available.",
+          error:
+            "No transcript segments found. This video may not have captions available.",
         };
       }
 
-      console.log("✅ Successfully extracted transcript segments:", segments.length);
+      console.log(
+        "✅ Successfully extracted transcript segments:",
+        segments.length
+      );
       return { success: true, data: segments };
     } catch (error) {
       console.error("❌ Transcript extraction failed:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error during transcript extraction",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unknown error during transcript extraction",
       };
     }
   }
@@ -68,9 +79,9 @@ class TranscriptService {
   private hasNoTranscriptMessage(): boolean {
     const noTranscriptSelectors = [
       "ytd-transcript-renderer yt-formatted-string",
-      "ytd-transcript-body-renderer yt-formatted-string", 
+      "ytd-transcript-body-renderer yt-formatted-string",
       "ytd-transcript-segment-list-renderer yt-formatted-string",
-      ".transcript-unavailable-message"
+      ".transcript-unavailable-message",
     ];
 
     for (const selector of noTranscriptSelectors) {
@@ -88,18 +99,18 @@ class TranscriptService {
       // Strategy 1: Try to expand description area if needed
       await this.tryExpandDescription();
 
-      // Strategy 2: Look for transcript button with multiple possible selectors  
+      // Strategy 2: Look for transcript button with multiple possible selectors
       const transcriptSelectors = [
         'button[aria-label*="transcript" i]',
-        'button[aria-label*="Show transcript" i]', 
+        'button[aria-label*="Show transcript" i]',
         'ytd-button-renderer:has-text("Show transcript") button',
         'ytd-menu-service-item-renderer:has-text("Show transcript")',
         'button.yt-spec-button-shape-next--mono:has-text("Show transcript")',
-        '.ytd-transcript-button-renderer button',
+        ".ytd-transcript-button-renderer button",
         // Fix: Add more YouTube transcript button selectors
         '[aria-label="Show transcript"]',
         'button[title*="transcript" i]',
-        'yt-button-shape button[aria-label*="transcript" i]'
+        'yt-button-shape button[aria-label*="transcript" i]',
       ];
 
       let transcriptButton = null;
@@ -107,7 +118,9 @@ class TranscriptService {
         try {
           transcriptButton = await waitForElement(selector, 2000);
           if (transcriptButton && this.isElementVisible(transcriptButton)) {
-            console.log(`🔍 Found transcript button with selector: ${selector}`);
+            console.log(
+              `🔍 Found transcript button with selector: ${selector}`
+            );
             break;
           }
         } catch (e) {
@@ -137,15 +150,21 @@ class TranscriptService {
       await wait(1500);
 
       // Verify transcript segments are now visible
-      const segments = document.querySelectorAll([
-        'ytd-transcript-segment-renderer',
-        '.ytd-transcript-segment-renderer',
-        '[class*="transcript-segment"]'
-      ].join(','));
-      
+      const segments = document.querySelectorAll(
+        [
+          "ytd-transcript-segment-renderer",
+          ".ytd-transcript-segment-renderer",
+          '[class*="transcript-segment"]',
+        ].join(",")
+      );
+
       const success = segments.length > 0;
-      
-      console.log(success ? "✅ Transcript panel opened successfully" : "❌ Transcript panel failed to open");
+
+      console.log(
+        success
+          ? "✅ Transcript panel opened successfully"
+          : "❌ Transcript panel failed to open"
+      );
       return success;
     } catch (error) {
       console.error("Error opening transcript panel:", error);
@@ -156,11 +175,11 @@ class TranscriptService {
   // Fix: Try to expand description to reveal transcript button
   private async tryExpandDescription(): Promise<void> {
     const expandSelectors = [
-      'tp-yt-paper-button#expand',
-      '.more-button',
-      '#expand',
+      "tp-yt-paper-button#expand",
+      ".more-button",
+      "#expand",
       'button[aria-label*="more" i]',
-      'ytd-text-inline-expander button'
+      "ytd-text-inline-expander button",
     ];
 
     for (const selector of expandSelectors) {
@@ -179,10 +198,10 @@ class TranscriptService {
     try {
       // Try to click more actions button
       const moreButtonSelectors = [
-        '#top-level-buttons-computed ytd-menu-renderer button',
-        'ytd-menu-renderer button',
+        "#top-level-buttons-computed ytd-menu-renderer button",
+        "ytd-menu-renderer button",
         '[aria-label*="More actions" i]',
-        'button[aria-label*="more" i]'
+        'button[aria-label*="more" i]',
       ];
 
       let moreButton = null;
@@ -211,17 +230,19 @@ class TranscriptService {
     } catch (error) {
       console.log("Could not find transcript in more menu:", error);
     }
-    
+
     return null;
   }
 
   // Fix: Alternative methods to find transcript functionality
   private async findTranscriptAlternative(): Promise<Element | null> {
     // Method 1: Look for any element containing "transcript" text
-    const elements = Array.from(document.querySelectorAll('*'));
+    const elements = Array.from(document.querySelectorAll("*"));
     for (const element of elements) {
-      if (element.textContent?.toLowerCase().includes('transcript') && 
-          element.tagName === 'BUTTON') {
+      if (
+        element.textContent?.toLowerCase().includes("transcript") &&
+        element.tagName === "BUTTON"
+      ) {
         if (this.isElementVisible(element)) {
           console.log("🔍 Found transcript button via text search");
           return element;
@@ -230,9 +251,13 @@ class TranscriptService {
     }
 
     // Method 2: Look in engagement panels
-    const engagementPanels = Array.from(document.querySelectorAll('ytd-engagement-panel-section-list-renderer'));
+    const engagementPanels = Array.from(
+      document.querySelectorAll("ytd-engagement-panel-section-list-renderer")
+    );
     for (const panel of engagementPanels) {
-      const transcriptButton = panel.querySelector('button[aria-label*="transcript" i]');
+      const transcriptButton = panel.querySelector(
+        'button[aria-label*="transcript" i]'
+      );
       if (transcriptButton && this.isElementVisible(transcriptButton)) {
         console.log("🔍 Found transcript button in engagement panel");
         return transcriptButton;
@@ -249,18 +274,20 @@ class TranscriptService {
     try {
       // Try multiple selectors for transcript segments
       const segmentSelectors = [
-        'ytd-transcript-segment-renderer',
-        '.ytd-transcript-segment-renderer',
+        "ytd-transcript-segment-renderer",
+        ".ytd-transcript-segment-renderer",
         '[class*="transcript-segment"]',
-        '.segment'
+        ".segment",
       ];
 
       let segmentElements: NodeListOf<Element> | null = null;
-      
+
       for (const selector of segmentSelectors) {
         segmentElements = document.querySelectorAll(selector);
         if (segmentElements.length > 0) {
-          console.log(`Found ${segmentElements.length} transcript segments with selector: ${selector}`);
+          console.log(
+            `Found ${segmentElements.length} transcript segments with selector: ${selector}`
+          );
           break;
         }
       }
@@ -272,17 +299,17 @@ class TranscriptService {
       segmentElements.forEach((element) => {
         // Try multiple selectors for timestamp and text within each segment
         const timestampSelectors = [
-          '.segment-timestamp',
-          '.ytd-transcript-segment-renderer .segment-timestamp',
+          ".segment-timestamp",
+          ".ytd-transcript-segment-renderer .segment-timestamp",
           '[class*="timestamp"]',
-          '.transcript-timestamp'
+          ".transcript-timestamp",
         ];
 
         const textSelectors = [
-          '.segment-text',
-          '.ytd-transcript-segment-renderer .segment-text', 
+          ".segment-text",
+          ".ytd-transcript-segment-renderer .segment-text",
           '[class*="segment-text"]',
-          '.transcript-text'
+          ".transcript-text",
         ];
 
         let timestampElement = null;
@@ -302,7 +329,7 @@ class TranscriptService {
 
         // Fallback: if no specific selectors work, try to extract from element structure
         if (!timestampElement || !textElement) {
-          const allText = element.textContent?.trim() || '';
+          const allText = element.textContent?.trim() || "";
           // Try to parse format like "0:05 some text here"
           const match = allText.match(/^(\d+:\d+)\s+(.+)$/);
           if (match) {
@@ -344,7 +371,11 @@ class TranscriptService {
         return parseInt(parts[0]) * 60 + parseInt(parts[1]);
       } else if (parts.length === 3) {
         // HH:MM:SS format
-        return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        return (
+          parseInt(parts[0]) * 3600 +
+          parseInt(parts[1]) * 60 +
+          parseInt(parts[2])
+        );
       }
     } catch (error) {
       console.error("Error parsing timestamp:", timestamp, error);
@@ -371,7 +402,10 @@ class TranscriptService {
   }
 
   // Search transcript for specific keywords
-  searchTranscript(segments: TranscriptSegment[], query: string): TranscriptSegment[] {
+  searchTranscript(
+    segments: TranscriptSegment[],
+    query: string
+  ): TranscriptSegment[] {
     const lowercaseQuery = query.toLowerCase();
     return segments.filter((segment) =>
       segment.text.toLowerCase().includes(lowercaseQuery)
@@ -379,13 +413,18 @@ class TranscriptService {
   }
 
   // Get transcript segment at specific time
-  getSegmentAtTime(segments: TranscriptSegment[], seconds: number): TranscriptSegment | null {
-    return segments.find((segment) => {
-      const start = segment.startSeconds || 0;
-      const next = segments[segments.indexOf(segment) + 1];
-      const end = next?.startSeconds || Infinity;
-      return seconds >= start && seconds < end;
-    }) || null;
+  getSegmentAtTime(
+    segments: TranscriptSegment[],
+    seconds: number
+  ): TranscriptSegment | null {
+    return (
+      segments.find((segment) => {
+        const start = segment.startSeconds || 0;
+        const next = segments[segments.indexOf(segment) + 1];
+        const end = next?.startSeconds || Infinity;
+        return seconds >= start && seconds < end;
+      }) || null
+    );
   }
 }
 
