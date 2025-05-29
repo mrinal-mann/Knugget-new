@@ -1,4 +1,3 @@
-// popup.js - Popup Script
 class KnuggetPopup {
   private elements: { [key: string]: HTMLElement } = {};
 
@@ -11,22 +10,10 @@ class KnuggetPopup {
 
   private initializeElements(): void {
     const elementIds = [
-      "status-icon",
-      "status-text",
-      "user-section",
-      "login-section",
-      "user-avatar",
-      "user-name",
-      "user-credits-text",
-      "user-plan",
-      "login-btn",
-      "signup-btn",
-      "logout-btn",
-      "dashboard-btn",
-      "summaries-btn",
-      "settings-btn",
-      "help-link",
-      "feedback-link",
+      "status-icon", "status-text", "user-section", "login-section",
+      "user-avatar", "user-name", "user-credits-text", "user-plan",
+      "login-btn", "signup-btn", "logout-btn", "dashboard-btn",
+      "summaries-btn", "settings-btn", "help-link", "feedback-link",
     ];
 
     elementIds.forEach((id) => {
@@ -38,29 +25,13 @@ class KnuggetPopup {
   }
 
   private setupEventListeners(): void {
-    // Auth buttons
-    this.elements["login-btn"]?.addEventListener("click", () =>
-      this.handleLogin()
-    );
-    this.elements["signup-btn"]?.addEventListener("click", () =>
-      this.handleSignup()
-    );
-    this.elements["logout-btn"]?.addEventListener("click", () =>
-      this.handleLogout()
-    );
+    this.elements["login-btn"]?.addEventListener("click", () => this.handleLogin());
+    this.elements["signup-btn"]?.addEventListener("click", () => this.handleSignup());
+    this.elements["logout-btn"]?.addEventListener("click", () => this.handleLogout());
+    this.elements["dashboard-btn"]?.addEventListener("click", () => this.openDashboard());
+    this.elements["summaries-btn"]?.addEventListener("click", () => this.openSummaries());
+    this.elements["settings-btn"]?.addEventListener("click", () => this.openSettings());
 
-    // Navigation buttons
-    this.elements["dashboard-btn"]?.addEventListener("click", () =>
-      this.openDashboard()
-    );
-    this.elements["summaries-btn"]?.addEventListener("click", () =>
-      this.openSummaries()
-    );
-    this.elements["settings-btn"]?.addEventListener("click", () =>
-      this.openSettings()
-    );
-
-    // Footer links
     this.elements["help-link"]?.addEventListener("click", (e) => {
       e.preventDefault();
       this.openHelp();
@@ -73,10 +44,7 @@ class KnuggetPopup {
 
   private async checkCurrentTab(): Promise<void> {
     try {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
       if (!tab || !tab.url) {
         this.updateStatus("inactive", "Unable to detect current page");
@@ -102,9 +70,7 @@ class KnuggetPopup {
 
   private async checkAuthStatus(): Promise<void> {
     try {
-      const response = await chrome.runtime.sendMessage({
-        type: "CHECK_AUTH_STATUS",
-      });
+      const response = await chrome.runtime.sendMessage({ type: "CHECK_AUTH_STATUS" });
 
       if (response.isAuthenticated && response.user) {
         this.showUserSection(response.user);
@@ -122,9 +88,7 @@ class KnuggetPopup {
     const statusText = this.elements["status-text"];
 
     if (statusIcon) {
-      statusIcon.className = `status-icon ${
-        status === "inactive" ? "inactive" : ""
-      }`;
+      statusIcon.className = `status-icon ${status === "inactive" ? "inactive" : ""}`;
     }
 
     if (statusText) {
@@ -133,36 +97,26 @@ class KnuggetPopup {
   }
 
   private showUserSection(user: any): void {
-    // Hide login section
     this.elements["login-section"]?.classList.add("hidden");
-
-    // Show user section
     this.elements["user-section"]?.classList.remove("hidden");
 
-    // Update user info
     if (this.elements["user-avatar"]) {
-      this.elements["user-avatar"].textContent =
-        user.name?.charAt(0).toUpperCase() || "U";
+      this.elements["user-avatar"].textContent = user.name?.charAt(0).toUpperCase() || "U";
     }
 
     if (this.elements["user-name"]) {
-      this.elements["user-name"].textContent =
-        user.name || user.email || "User";
+      this.elements["user-name"].textContent = user.name || user.email || "User";
     }
 
     if (this.elements["user-credits-text"]) {
       const credits = user.credits || 0;
-      this.elements["user-credits-text"].textContent = `${credits} credit${
-        credits !== 1 ? "s" : ""
-      }`;
+      this.elements["user-credits-text"].textContent = `${credits} credit${credits !== 1 ? "s" : ""}`;
     }
 
     if (this.elements["user-plan"]) {
       const plan = user.plan || "free";
-      this.elements["user-plan"].textContent =
-        plan.charAt(0).toUpperCase() + plan.slice(1);
+      this.elements["user-plan"].textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
 
-      // Update badge color based on plan
       const planBadge = this.elements["user-plan"];
       if (plan === "premium") {
         planBadge.style.background = "#8b5cf6";
@@ -173,10 +127,7 @@ class KnuggetPopup {
   }
 
   private showLoginSection(): void {
-    // Hide user section
     this.elements["user-section"]?.classList.add("hidden");
-
-    // Show login section
     this.elements["login-section"]?.classList.remove("hidden");
   }
 
@@ -198,31 +149,18 @@ class KnuggetPopup {
 
   private async handleLogout(): Promise<void> {
     try {
-      // Show loading state
       if (this.elements["logout-btn"]) {
         this.elements["logout-btn"].textContent = "Signing out...";
         (this.elements["logout-btn"] as HTMLButtonElement).disabled = true;
       }
 
-      // Clear auth data
-      await chrome.storage.local.remove(["knuggetUserInfo"]);
+      // Send logout message to background
+      await chrome.runtime.sendMessage({ type: "LOGOUT" });
 
-      // Notify content scripts
-      const tabs = await chrome.tabs.query({ url: "*://*.youtube.com/*" });
-      tabs.forEach((tab) => {
-        if (tab.id) {
-          chrome.tabs.sendMessage(tab.id, { type: "LOGOUT" }).catch(() => {
-            // Ignore errors for tabs that aren't ready
-          });
-        }
-      });
-
-      // Update UI
       this.showLoginSection();
     } catch (error) {
       console.error("Logout error:", error);
 
-      // Reset button state
       if (this.elements["logout-btn"]) {
         this.elements["logout-btn"].textContent = "Sign Out";
         (this.elements["logout-btn"] as HTMLButtonElement).disabled = false;
@@ -261,12 +199,10 @@ class KnuggetPopup {
   }
 
   private getWebsiteUrl(): string {
-    // In production, this would be your actual website URL
-    return "http://localhost:8000";
+    return "http://localhost:8000"; // Frontend URL
   }
 }
 
-// Initialize popup when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   new KnuggetPopup();
 });

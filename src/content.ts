@@ -1,10 +1,9 @@
-// content.ts - content script YouTube detection
+// knugget-new/src/content.ts - FIXED
 import "./styles.css";
 import { transcriptService } from "./services/transcript";
 import { User } from "./types";
 import { getVideoId, debounce } from "./utils/dom";
 
-// Global state and tracking variables
 let currentVideoId: string | null = null;
 let knuggetPanel: HTMLElement | null = null;
 let isInitialized = false;
@@ -13,55 +12,38 @@ let authState = {
   user: null as User | null,
 };
 
-// Add comprehensive YouTube page detection
 function isYouTubeWatchPage(): boolean {
   const pathname = window.location.pathname;
   const search = window.location.search;
   return pathname === "/watch" && search.includes("v=");
 }
 
-// Enhanced initialization that works for both page loads and SPA navigation
 function initializeKnuggetExtension(): void {
   console.log("🎯 Knugget Extension initializing...");
 
-  // Check multiple conditions for YouTube watch pages
   if (!isYouTubeWatchPage()) {
-    console.log(
-      "Not on YouTube watch page, current URL:",
-      window.location.href
-    );
-    // Don't return - set up listeners for navigation
+    console.log("Not on YouTube watch page, current URL:", window.location.href);
   }
 
   const videoId = getVideoId();
   console.log(`Initializing Knugget AI for video ID: ${videoId}`);
 
-  // Always set up navigation detection (not just once)
   setupURLChangeDetection();
-  console.log("Knugget AI: Setting up URL change detection");
-
-  // Set up auth refresh listener
   setupAuthRefreshListener();
-  console.log("Setting up auth refresh listener");
-
-  // Process the current page if we have a video ID
+  
   if (videoId) {
     processCurrentPage(videoId);
   }
 }
 
-// Enhanced page processing with better error handling
 function processCurrentPage(videoId: string | null): void {
   console.log(`Knugget AI: Processing page for video ID ${videoId}`);
 
-  // Update current video ID tracking
   if (currentVideoId !== videoId) {
     currentVideoId = videoId;
     resetContentData();
-    console.log("Resetting content data for new video");
   }
 
-  // Send page loaded message to background script
   chrome.runtime
     .sendMessage({
       type: "PAGE_LOADED",
@@ -71,22 +53,16 @@ function processCurrentPage(videoId: string | null): void {
       // Ignore errors if background script is not ready
     });
 
-  // Remove existing panel if present
   removeExistingPanel();
 
-  // Fix: Add delay before observing to ensure YouTube DOM is ready
   setTimeout(() => {
     observeForSecondaryColumn();
-    console.log("Knugget AI: Observing DOM for secondary column");
   }, 100);
 
-  // Initialize auth state
   initializeAuthState();
 }
 
-// More robust DOM observation with multiple fallbacks
 function observeForSecondaryColumn(): void {
-  // Check if secondary column already exists
   const secondaryColumn = document.getElementById("secondary");
   if (secondaryColumn) {
     console.log("✅ YouTube secondary column found immediately!");
@@ -94,7 +70,6 @@ function observeForSecondaryColumn(): void {
     return;
   }
 
-  // Use more aggressive observation strategy
   const observer = new MutationObserver((mutations) => {
     const secondaryColumn = document.getElementById("secondary");
     if (secondaryColumn && !knuggetPanel) {
@@ -104,17 +79,15 @@ function observeForSecondaryColumn(): void {
     }
   });
 
-  // Start observing document body for changes
   observer.observe(document.body, {
     childList: true,
     subtree: true,
-    attributes: true, // Also watch for attribute changes
-    attributeFilter: ["id", "class"], // Specifically watch for id/class changes
+    attributes: true,
+    attributeFilter: ["id", "class"],
   });
 
-  // Longer timeout and periodic checks
   let attempts = 0;
-  const maxAttempts = 60; // 30 seconds with 500ms intervals
+  const maxAttempts = 60;
 
   const periodicCheck = setInterval(() => {
     attempts++;
@@ -136,19 +109,15 @@ function observeForSecondaryColumn(): void {
   }, 500);
 }
 
-// Inject Knugget panel into YouTube's secondary column
 function injectKnuggetPanel(secondaryColumn: HTMLElement): void {
   console.log("Knugget AI: Injecting panel with professional styling");
 
-  // Create panel container
   const panelContainer = document.createElement("div");
   panelContainer.id = "knugget-container";
   panelContainer.className = "knugget-extension";
 
-  // Create panel HTML structure
   panelContainer.innerHTML = `
     <div class="knugget-box">
-      <!-- Header with logo and credits -->
       <div class="knugget-header">
         <div style="display: flex; align-items: center;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
@@ -165,7 +134,6 @@ function injectKnuggetPanel(secondaryColumn: HTMLElement): void {
         </div>
       </div>
       
-      <!-- Tab Navigation -->
       <div class="knugget-tabs">
         <button id="transcript-tab" class="knugget-tab knugget-tab-active">
           View Transcript
@@ -175,7 +143,6 @@ function injectKnuggetPanel(secondaryColumn: HTMLElement): void {
         </button>
       </div>
       
-      <!-- Content Area -->
       <div class="knugget-content">
         <div id="transcript-content" class="knugget-content-inner">
           <!-- Transcript will be loaded here -->
@@ -186,7 +153,6 @@ function injectKnuggetPanel(secondaryColumn: HTMLElement): void {
         </div>
       </div>
       
-      <!-- Action buttons -->
       <div class="knugget-actions">
         <button id="save-btn" class="knugget-save-btn" style="display: none;">Save</button>
         <button id="dashboard-btn" class="knugget-dashboard-btn">
@@ -201,23 +167,15 @@ function injectKnuggetPanel(secondaryColumn: HTMLElement): void {
     </div>
   `;
 
-  // Insert panel at the beginning of secondary column
   secondaryColumn.insertBefore(panelContainer, secondaryColumn.firstChild);
   knuggetPanel = panelContainer;
-
-  // Set up panel event listeners
   setupPanelEventListeners();
-
-  // Load transcript by default
   loadAndDisplayTranscript();
-  console.log("Knugget AI: Loading and displaying transcript");
 }
 
-// Set up event listeners for panel interactions
 function setupPanelEventListeners(): void {
   if (!knuggetPanel) return;
 
-  // Tab switching
   const transcriptTab = knuggetPanel.querySelector("#transcript-tab");
   const summaryTab = knuggetPanel.querySelector("#summary-tab");
   const transcriptContent = knuggetPanel.querySelector("#transcript-content");
@@ -225,15 +183,12 @@ function setupPanelEventListeners(): void {
   const saveButton = knuggetPanel.querySelector("#save-btn");
 
   transcriptTab?.addEventListener("click", () => {
-    // Update tab styling
     transcriptTab.classList.remove("knugget-tab-inactive");
     transcriptTab.classList.add("knugget-tab-active");
     summaryTab?.classList.remove("knugget-tab-active");
     summaryTab?.classList.add("knugget-tab-inactive");
 
-    // Show transcript, hide summary
-    if (transcriptContent)
-      (transcriptContent as HTMLElement).style.display = "block";
+    if (transcriptContent) (transcriptContent as HTMLElement).style.display = "block";
     if (summaryContent) (summaryContent as HTMLElement).style.display = "none";
     if (saveButton) (saveButton as HTMLElement).style.display = "none";
 
@@ -241,50 +196,39 @@ function setupPanelEventListeners(): void {
   });
 
   summaryTab?.addEventListener("click", () => {
-    // Update tab styling
     summaryTab.classList.remove("knugget-tab-inactive");
     summaryTab.classList.add("knugget-tab-active");
     transcriptTab?.classList.remove("knugget-tab-active");
     transcriptTab?.classList.add("knugget-tab-inactive");
 
-    // Show summary, hide transcript
     if (summaryContent) (summaryContent as HTMLElement).style.display = "block";
-    if (transcriptContent)
-      (transcriptContent as HTMLElement).style.display = "none";
+    if (transcriptContent) (transcriptContent as HTMLElement).style.display = "none";
     if (saveButton) (saveButton as HTMLElement).style.display = "block";
 
     loadAndDisplaySummary();
   });
 
-  // Dashboard button
   const dashboardBtn = knuggetPanel.querySelector("#dashboard-btn");
   dashboardBtn?.addEventListener("click", () => {
     chrome.runtime.sendMessage({ type: "OPEN_DASHBOARD" });
   });
 }
 
-// Load and display transcript from YouTube video
 async function loadAndDisplayTranscript(): Promise<void> {
   const transcriptContent = document.getElementById("transcript-content");
   if (!transcriptContent) return;
 
-  // Show loading state
   showLoading(transcriptContent, "Loading Transcript");
 
   try {
-    // Add delay to ensure YouTube has fully loaded
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Extract transcript
     const transcriptResponse = await transcriptService.extractTranscript();
 
     if (!transcriptResponse.success || !transcriptResponse.data) {
-      throw new Error(
-        transcriptResponse.error || "Failed to extract transcript"
-      );
+      throw new Error(transcriptResponse.error || "Failed to extract transcript");
     }
 
-    // Display transcript segments
     const segments = transcriptResponse.data;
     const segmentsHTML = segments
       .map(
@@ -306,19 +250,16 @@ async function loadAndDisplayTranscript(): Promise<void> {
     const videoId = getVideoId();
     console.log(`Transcript loaded successfully for video ID: ${videoId}`);
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     console.error("Transcript extraction error:", errorMessage);
     showError(transcriptContent, errorMessage, loadAndDisplayTranscript);
   }
 }
 
-// Load and display AI-generated summary
 async function loadAndDisplaySummary(): Promise<void> {
   const summaryContent = document.getElementById("summary-content");
   if (!summaryContent) return;
 
-  // Check authentication first
   if (!authState.isAuthenticated) {
     showLoginRequired(summaryContent);
     return;
@@ -334,14 +275,12 @@ async function loadAndDisplaySummary(): Promise<void> {
       </div>
     `;
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     console.error("Summary generation error:", errorMessage);
     showError(summaryContent, errorMessage, loadAndDisplaySummary);
   }
 }
 
-// Show loading state in content area
 function showLoading(element: HTMLElement, message: string = "Loading"): void {
   element.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; padding: 40px;">
@@ -352,12 +291,7 @@ function showLoading(element: HTMLElement, message: string = "Loading"): void {
   `;
 }
 
-// Show error state with retry option
-function showError(
-  element: HTMLElement,
-  message: string,
-  retryFn?: () => void
-): void {
+function showError(element: HTMLElement, message: string, retryFn?: () => void): void {
   element.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; text-align: center;">
       <div style="margin-bottom: 20px; color: #ff5757;">
@@ -369,11 +303,7 @@ function showError(
       </div>
       <p style="color: #ffffff; margin-bottom: 8px;">Error</p>
       <p style="color: #aaaaaa; margin-bottom: 20px;">${message}</p>
-      ${
-        retryFn
-          ? '<button id="retry-btn" class="btn btn-primary">Try Again</button>'
-          : ""
-      }
+      ${retryFn ? '<button id="retry-btn" class="btn btn-primary">Try Again</button>' : ""}
     </div>
   `;
 
@@ -383,7 +313,6 @@ function showError(
   }
 }
 
-// Show login required state
 function showLoginRequired(element: HTMLElement): void {
   element.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; text-align: center;">
@@ -401,11 +330,13 @@ function showLoginRequired(element: HTMLElement): void {
 
   const loginBtn = element.querySelector("#login-btn");
   loginBtn?.addEventListener("click", () => {
-    chrome.runtime.sendMessage({ type: "OPEN_LOGIN_PAGE" });
+    chrome.runtime.sendMessage({ 
+      type: "OPEN_LOGIN_PAGE",
+      payload: { url: window.location.href }
+    });
   });
 }
 
-// Enhanced URL change detection with multiple event listeners
 function setupURLChangeDetection(): void {
   let lastUrl = window.location.href;
 
@@ -425,9 +356,8 @@ function setupURLChangeDetection(): void {
         cleanup();
       }
     }
-  }, 300); // Fix: Reduced debounce time for faster response
+  }, 300);
 
-  // Override history methods to catch programmatic navigation
   const originalPushState = history.pushState;
   history.pushState = function (...args) {
     originalPushState.apply(this, args);
@@ -440,94 +370,104 @@ function setupURLChangeDetection(): void {
     setTimeout(handleURLChange, 100);
   };
 
-  // Listen for back/forward navigation
   window.addEventListener("popstate", handleURLChange);
 
-  // Listen for YouTube's custom navigation events with multiple event types
   document.addEventListener("yt-navigate-finish", () => {
     console.log("YouTube navigation detected via yt-navigate-finish event");
     setTimeout(handleURLChange, 200);
   });
 
-  // Fix: Also listen for yt-navigate-start for earlier detection
   document.addEventListener("yt-navigate-start", () => {
     console.log("YouTube navigation starting via yt-navigate-start event");
   });
 
-  // Fix: Listen for YouTube page data updates
   document.addEventListener("yt-page-data-updated", () => {
     console.log("YouTube page data updated");
     setTimeout(handleURLChange, 100);
   });
 }
 
-// Set up auth refresh listener for external login
+// FIXED: Enhanced auth refresh listener
 function setupAuthRefreshListener(): void {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "REFRESH_AUTH_STATE") {
-      console.log("Received auth refresh message:", message);
+    console.log("📨 Content script received message:", message);
 
-      if (message.payload?.forceCheck) {
-        chrome.runtime.sendMessage(
-          { type: "FORCE_CHECK_WEBSITE_LOGIN" },
-          () => {
-            console.log(
-              "Forced website login check after external auth refresh"
-            );
-
-            // Update auth state
-            chrome.storage.local.get(["knuggetUserInfo"], (result) => {
-              const isLoggedIn = !!(
-                result.knuggetUserInfo && result.knuggetUserInfo.token
-              );
-              console.log(
-                "Auth state after refresh:",
-                isLoggedIn ? "Logged in" : "Not logged in"
-              );
-
-              authState.isAuthenticated = isLoggedIn;
-              authState.user = result.knuggetUserInfo || null;
-
-              // Refresh UI if logged in
-              if (isLoggedIn && knuggetPanel) {
-                const summaryContent =
-                  document.getElementById("summary-content");
-                if (summaryContent && summaryContent.style.display !== "none") {
-                  loadAndDisplaySummary();
-                }
-              }
-            });
+    switch (message.type) {
+      case "AUTH_STATUS_CHANGED":
+        console.log("🔄 Auth status changed:", message.data);
+        if (message.data?.isAuthenticated && message.data?.user) {
+          authState.isAuthenticated = true;
+          authState.user = message.data.user;
+          
+          // Update credits display
+          updateCreditsDisplay(message.data.user.credits);
+          
+          // Refresh summary content if it's currently displayed
+          const summaryContent = document.getElementById("summary-content");
+          if (summaryContent && summaryContent.style.display !== "none") {
+            loadAndDisplaySummary();
           }
-        );
-      }
+        } else {
+          authState.isAuthenticated = false;
+          authState.user = null;
+          updateCreditsDisplay(0);
+        }
+        break;
 
-      sendResponse({ received: true });
+      case "LOGOUT":
+        console.log("🚪 User logged out");
+        authState.isAuthenticated = false;
+        authState.user = null;
+        updateCreditsDisplay(0);
+        
+        // Show login required if summary tab is active
+        const summaryContent = document.getElementById("summary-content");
+        if (summaryContent && summaryContent.style.display !== "none") {
+          showLoginRequired(summaryContent);
+        }
+        break;
     }
+
+    sendResponse({ received: true });
     return true;
   });
 }
 
-// Initialize auth state from storage
-function initializeAuthState(): void {
-  chrome.storage.local.get(["knuggetUserInfo"], (result) => {
-    if (result.knuggetUserInfo && result.knuggetUserInfo.token) {
-      authState.isAuthenticated = true;
-      authState.user = result.knuggetUserInfo;
-      console.log("Auth state initialized: Authenticated");
-    } else {
-      authState.isAuthenticated = false;
-      authState.user = null;
-      console.log("Auth state initialized: Not authenticated");
-    }
-  });
+function updateCreditsDisplay(credits: number): void {
+  const creditsDisplay = document.getElementById("credits-display");
+  if (creditsDisplay) {
+    creditsDisplay.textContent = `${credits} Credits Left`;
+  }
 }
 
-// Reset content data when video changes
+function initializeAuthState(): void {
+  // Get initial auth state from background
+  chrome.runtime.sendMessage({ type: "CHECK_AUTH_STATUS" })
+    .then((response) => {
+      if (response?.isAuthenticated && response?.user) {
+        authState.isAuthenticated = true;
+        authState.user = response.user;
+        updateCreditsDisplay(response.user.credits || 0);
+        console.log("✅ Auth state initialized: Authenticated");
+      } else {
+        authState.isAuthenticated = false;
+        authState.user = null;
+        updateCreditsDisplay(0);
+        console.log("ℹ️ Auth state initialized: Not authenticated");
+      }
+    })
+    .catch((error) => {
+      console.log("❌ Failed to get auth state:", error);
+      authState.isAuthenticated = false;
+      authState.user = null;
+      updateCreditsDisplay(0);
+    });
+}
+
 function resetContentData(): void {
   console.log("Content data reset for new video");
 }
 
-// Remove existing panel from DOM
 function removeExistingPanel(): void {
   const existingPanel = document.getElementById("knugget-container");
   if (existingPanel) {
@@ -536,25 +476,18 @@ function removeExistingPanel(): void {
   }
 }
 
-// Cleanup when navigating away from watch pages
 function cleanup(): void {
   removeExistingPanel();
   currentVideoId = null;
   console.log("Cleanup completed - navigated away from watch page");
 }
 
-// Multiple initialization strategies to ensure script runs
 function initializeWhenReady(): void {
-  // Strategy 1: Immediate initialization if DOM is ready
-  if (
-    document.readyState === "complete" ||
-    document.readyState === "interactive"
-  ) {
+  if (document.readyState === "complete" || document.readyState === "interactive") {
     console.log("DOM ready, initializing immediately");
     initializeKnuggetExtension();
   }
 
-  // Strategy 2: Wait for DOMContentLoaded if not ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       console.log("DOMContentLoaded fired, initializing");
@@ -562,7 +495,6 @@ function initializeWhenReady(): void {
     });
   }
 
-  // Strategy 3: Fallback timeout initialization
   setTimeout(() => {
     if (!isInitialized) {
       console.log("Fallback initialization triggered");
@@ -571,14 +503,9 @@ function initializeWhenReady(): void {
     }
   }, 1000);
 
-  // Strategy 4: Listen for YouTube-specific ready events
   if (window.location.hostname.includes("youtube.com")) {
-    // Wait for YouTube's app to be ready
     const checkYouTubeReady = () => {
-      if (
-        document.querySelector("#secondary") ||
-        document.querySelector("ytd-app")
-      ) {
+      if (document.querySelector("#secondary") || document.querySelector("ytd-app")) {
         console.log("YouTube app detected, initializing");
         initializeKnuggetExtension();
       } else {
@@ -589,6 +516,5 @@ function initializeWhenReady(): void {
   }
 }
 
-// Start initialization immediately
 console.log("Knugget content script loaded and ready");
 initializeWhenReady();
