@@ -8,13 +8,15 @@
     "activeTab",
     "scripting",
     "notifications",
-    "cookies"
+    "cookies",
+    "tabs"
   ],
   "host_permissions": [
     "https://www.youtube.com/*",
     "http://localhost:*/*",
     "https://localhost:*/*",
-    "https://*.knugget.com/*"
+    "https://*.knugget.com/*",
+    "http://localhost:8000/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -34,8 +36,8 @@
   },
   "externally_connectable": {
     "matches": [
-      "http://localhost:*/*",
-      "https://localhost:*/*",
+      "http://localhost:8000/*",
+      "https://localhost:8000/*",
       "https://*.knugget.com/*"
     ]
   },

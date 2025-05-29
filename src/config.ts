@@ -3,17 +3,15 @@ import { KnuggetConfig } from "./types";
 import dotenv from "dotenv";
 
 export const config: KnuggetConfig = {
-  apiBaseUrl:
-    process.env.NODE_ENV === "production"
-      ? "https://api.knugget.com"
-      : "http://localhost:3000/api",
-  websiteUrl:
-    process.env.NODE_ENV === "production"
-      ? "https://knugget.com"
-      : "http://localhost:8000",
-  refreshTokenThreshold: 5, // Refresh token if expiring within 5 minutes
+  apiBaseUrl: process.env.NODE_ENV === "production" 
+    ? "https://api.knugget.com/api" 
+    : "http://localhost:3000/api", // FIXED: Points to BACKEND, not frontend
+  websiteUrl: process.env.NODE_ENV === "production"
+    ? "https://knugget.com"
+    : "http://localhost:8000", // Frontend URL
+  refreshTokenThreshold: 5,
   maxRetries: 3,
-  retryDelay: 1000, // 1 second
+  retryDelay: 1000,
 };
 
 export const selectors = {
