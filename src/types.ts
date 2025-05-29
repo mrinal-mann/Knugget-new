@@ -37,6 +37,7 @@ export interface Summary {
   title: string;
   keyPoints: string[];
   fullSummary: string;
+  tags?: string[];
   videoMetadata: VideoMetadata;
   transcript?: TranscriptSegment[];
   createdAt?: string;
