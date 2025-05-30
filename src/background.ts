@@ -208,7 +208,7 @@ class BackgroundService {
   private openLoginPage(payload?: { url?: string }): void {
     const extensionId = chrome.runtime.id;
     const referrer = payload?.url ? `&referrer=${encodeURIComponent(payload.url)}` : "";
-    const loginUrl = `${config.websiteUrl}/auth/login?source=extension&extensionId=${extensionId}${referrer}`;
+    const loginUrl = `${config.websiteUrl}/login?source=extension&extensionId=${extensionId}${referrer}`;
     
     chrome.tabs.create({ url: loginUrl });
   }
