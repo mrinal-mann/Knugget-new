@@ -199,7 +199,7 @@ class KnuggetPopup {
   }
 
   private getWebsiteUrl(): string {
-    return "http://localhost:8000"; // Frontend URL
+    return "https://knugget-client.vercel.app"; // Frontend URL
   }
 }
 

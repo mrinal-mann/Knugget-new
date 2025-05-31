@@ -1,14 +1,9 @@
 // config.ts - Updated with correct YouTube selectors
 import { KnuggetConfig } from "./types";
-import dotenv from "dotenv";
 
 export const config: KnuggetConfig = {
-  apiBaseUrl: process.env.NODE_ENV === "production" 
-    ? "https://api.knugget.com/api" 
-    : "http://localhost:3000/api", // FIXED: Points to BACKEND, not frontend
-  websiteUrl: process.env.NODE_ENV === "production"
-    ? "https://knugget.com"
-    : "http://localhost:8000", // Frontend URL
+  apiBaseUrl: "https://knugget-backend.onrender.com/api", // FIXED: Points to BACKEND, not frontend
+  websiteUrl: "https://knugget-client.vercel.app", // Frontend URL
   refreshTokenThreshold: 5,
   maxRetries: 3,
   retryDelay: 1000,
